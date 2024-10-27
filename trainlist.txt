@@ -1,0 +1,12 @@
+mfcc/mae1.mfc
+mfcc/mae2.mfc
+mfcc/mae3.mfc
+mfcc/migi1.mfc
+mfcc/migi2.mfc
+mfcc/migi3.mfc
+mfcc/hidari1.mfc
+mfcc/hidari2.mfc
+mfcc/hidari3.mfc
+mfcc/usiro1_aoi.mfc
+mfcc/usiro2_mayu.mfc
+mfcc/usiro3_nanami.mfc
