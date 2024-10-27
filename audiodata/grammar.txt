@@ -1,0 +1,2 @@
+$WORD = MAE | MIGI | HIDARI | USIRO;
+({SIL} [$WORD] {SIL})

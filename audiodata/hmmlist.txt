@@ -2,3 +2,4 @@ mae
 migi
 hidari
 usiro
+sil
