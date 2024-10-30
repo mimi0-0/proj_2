@@ -1,0 +1,181 @@
+#HMMも書いたけど上手くいかなかったからDNNだけで動かしてます
+import torch
+import torch.nn as nn
+import torchaudio
+from torch.utils.data import DataLoader, Dataset
+import numpy as np
+
+from google.colab import drive
+drive.mount('/content/drive')
+path = "/content/drive/MyDrive/Colab Notebooks/"
+
+#特徴量抽出
+class AudioDataset(Dataset):
+    def __init__(self, audio_files, labels):
+      self.audio_files = audio_files
+      self.labels = labels
+      #音声信号をMFCC変換する関数
+      self.mfcc_transform = torchaudio.transforms.MFCC(sample_rate = 16000, n_mfcc = 13, melkwargs = {"n_fft": 400, "hop_length": 160})
+      self.max_length = self.calculate_max_length()
+
+    def __len__(self):
+      return len(self.audio_files)
+
+    def __getitem__(self, idx):
+      waveform, sample_rate = torchaudio.load(self.audio_files[idx])
+      #音声信号をMFCC変換
+      mfcc = self.mfcc_transform(waveform)
+
+       # mfcc が2次元以上の場合、2次元に削減
+      if mfcc.dim() > 2:
+          mfcc = mfcc.mean(dim=0)  # チャンネル全体で平均を取る
+
+      # パディング処理: MFCCの長さを最大長に揃える
+      length = mfcc.shape[-1]
+      padding = torch.zeros(mfcc.shape[0], self.max_length - length)  # 必要なパディング量を計算
+      mfcc = torch.cat([mfcc, padding], dim=1)  # パディングを追加
+
+      label = self.labels[idx]
+      return mfcc, label
+
+    def calculate_max_length(self):
+      #データセット内のMFCCの最大長を計算する"""
+      max_length = 0
+      for audio_file in self.audio_files:
+          waveform, sample_rate = torchaudio.load(audio_file)
+          mfcc = self.mfcc_transform(waveform).squeeze(0)
+          length = mfcc.shape[-1]
+          max_length = max(max_length, length)
+      return max_length
+
+
+#DNN(音素の確率を出力する)
+class AcousticModel(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+      super(AcousticModel, self).__init__()
+      self.input_size = input_size
+      self.hidden_size = hidden_size
+      self.output_size = output_size
+      self.fc1 = nn.Linear(input_size, hidden_size)
+      self.relu = nn.ReLU() #ReLU関数(活性化関数)
+      self.fc2 = nn.Linear(hidden_size, output_size)
+      self.logsoftmax = nn.LogSoftmax(dim = 1)
+
+    def forward(self, x):
+      x = x.reshape(x.size(0), -1, self.input_size)
+      x = torch.mean(x, dim=1)
+      x = self.fc1(x)
+      x = self.relu(x)
+      x = self.fc2(x)
+      return x #確率
+      #return self.logsoftmax(x) #対数確率
+
+#HMM初期化(初期確率、遷移確率、観測確率の設定)
+num_states = 4 #音素の数
+transition_probs = np.random.rand(num_states, num_states)
+initial_probs = np.random.rand(num_states)
+initial_probs /= initial_probs.sum() #初期確率を正規化
+transition_probs /= transition_probs.sum(axis = 1, keepdims = True) #行ごとに正規化
+
+
+#モデルの訓練
+def train_model(model, train_loader, criterion, optimizer, num_epochs = 20):
+    model.train()
+    for epoch in range(num_epochs):
+      running_loss = 0.0
+      for mfccs, labels in train_loader:
+        optimizer.zero_grad()
+
+        outputs = model(mfccs)
+        loss = criterion(outputs, labels)
+
+        loss.backward()
+        optimizer.step()
+
+        running_loss += loss.item()
+#      print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss/len(train_loader):.4f}")
+
+
+#DNN-HMMをトレーニングする関数
+def train_dnn_hmm(model, dataloader, num_epochs = 10):
+    optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
+    criterion = nn.NLLLoss() #負の対数尤度
+
+    for epoch in range(num_epochs):
+        model.train()
+        for inputs, labels in dataloader:
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
+
+    return model
+
+
+#EMアルゴリズムを使用してHMMのパラメータを最適化する関数
+def em_hmm(observations, num_states, max_iter = 10):
+    T = len(observations)
+    gamma = np.zeros((T, num_states))
+    xi = np.zeros((T-1, num_states, num_states))
+
+    for iteration in range(max_iter):
+        #Eステップ:フォワード・バックワードアルゴリズムを計算
+        alpha = np.zeros((T, num_states)) #フォワード確率
+        beta = np.zeros((T, num_states)) #バックワード確率
+
+        #初期化
+        alpha[0] = initial_probs * observations[0]
+        beta[-1] = 1
+
+        for t in range(1, T):
+            alpha[t] = (alpha[t-1] @ transition_probs) * observations[t]
+        for t in range(T-2, -1, -1):
+            beta[t] = (transition_probs @ (observations[t+1] * beta[t+1]))
+
+        #正規化してγ、ξを計算
+        for t in range(T):
+            gamma[t] = alpha[t] * beta[t] / (alpha[t] * bata[t]).sum()
+        for t in range(T-1):
+            xi[t] = alpha[t][:, None] * transition_probs * observations[t+1] * (observations[t+1] * beta[t+1])
+            xi[t] /= xi[t].sum()
+
+        #Mステップ:パラメータを更新
+        initial_probs = gamma[0]
+        transition_probs = xi.sum(axis = 0) / gamma[:-1].sum(axis = 0, kieepdims = True)
+        print(f"Iteration {iteration+1}, transition_probs: \n{transition_probs}")
+    return initial_probs, transition_probs
+
+
+if __name__ == "__main__":
+    audio_files = [path+"mae.wav", path+"usiro.wav", path+"migi.wav", path+"hidari.wav"]
+    labels = [0, 1, 2, 3] #音素ラベル
+
+    dataset = AudioDataset(audio_files, labels)
+    train_loader = DataLoader(dataset, batch_size = 2, shuffle = True)
+
+    input_size = 13 #MFCCの次元数
+    hidden_size = 128
+    output_size = len(set(labels)) #音素の数 num_states
+
+    model = AcousticModel(input_size, hidden_size, output_size)
+
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
+    train_model(model, train_loader, criterion, optimizer, num_epochs = 20)
+
+    sample_data = AudioDataset([path+"usiro.wav"], [0])
+    sample_loader = DataLoader(sample_data, batch_size = 2, shuffle = True)
+    #mfcc, _ = sample_loader.__iter__().__next__()
+    mfcc, _ = sample_data.__getitem__(0)
+    mfcc = mfcc.unsqueeze(0)
+
+    with torch.no_grad():
+      log_probs = model(mfcc).numpy()
+
+    predicted_command = np.argmax(log_probs, axis = 1)[0]
+
+    commands = ["前", "後ろ", "右", "左"]
+    print("認識されたコマンド: ", commands[predicted_command])
