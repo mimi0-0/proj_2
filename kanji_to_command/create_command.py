@@ -85,7 +85,7 @@ def create_command(text):
         elif nodecmd == 'takeoff':  # takeoffコマンドは距離を伴わない
             cmd = nodecmd
         else:
-            cmd = nodecmd + ' ' + str(far)
+            cmd = nodecmd # + ' ' + str(far)
         print('Created command: ' + cmd)
     else:
         print('Error: command not found.')
