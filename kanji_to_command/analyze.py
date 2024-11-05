@@ -55,19 +55,25 @@ def dijkstra_lattice(lattice, text_len):
 
     while queue:
         current_position = queue.popleft()
+        
+        # current_positionがテキストの長さ以上の場合は終了
         if current_position >= text_len:
             break
 
+        # 現在の位置からのノードを処理
         for node in lattice[current_position]:
             next_position = current_position + len(node.word)
             cost = distances[current_position] + node.cost
 
-            if next_position not in distances or cost < distances[next_position]:
-                distances[next_position] = cost
-                previous_nodes[next_position] = node
-                queue.append(next_position)
+            # next_positionがcurrent_position + node.wordの終わりに一致する場合のみ
+            if next_position == current_position + len(node.word):
+                if next_position not in distances or cost < distances[next_position]:
+                    distances[next_position] = cost
+                    previous_nodes[next_position] = node
+                    queue.append(next_position)
 
     return previous_nodes, distances
+
 
 # 最短経路から形態素を取得する関数
 def get_shortest_path(previous_nodes, text_len):
