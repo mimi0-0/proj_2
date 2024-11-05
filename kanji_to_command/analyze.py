@@ -1,8 +1,8 @@
 import os
-import re
+#import re
 from collections import defaultdict, deque
 
-# ノードのクラスを定義
+# ノードクラスのコンストラクタ
 class Node:
     def __init__(self, word, pos, start, cost):
         self.word = word  # 形態素
@@ -11,7 +11,7 @@ class Node:
         self.cost = cost  # コスト
         self.next_nodes = []  # 次に接続されるノードのリスト
 
-# IPAdic辞書を読み込む関数（ディレクトリ内のすべてのCSVファイルを読み込み）
+# IPAdic辞書を読み込む関数（ディレクトリ内のすべてのCSVファイルを読み込む）
 def load_ipadic_dict(directory_path):
     dictionary = defaultdict(list)
     for filename in os.listdir(directory_path):
@@ -21,7 +21,7 @@ def load_ipadic_dict(directory_path):
             with open(filepath, 'r', encoding='euc-jp') as f:
                 for line in f:
                     parts = line.strip().split(',')
-                    if len(parts) > 8:  # フォーマットの確認
+                    if len(parts) > 8:  # 各単語に付属する情報の数
                         word = parts[0]  # 表層形（単語の形）
                         pos = parts[4]    # 品詞
                         cost = int(parts[3])  # コスト (第4列に仮定)
@@ -38,41 +38,56 @@ def build_lattice(text, dictionary):
                 for pos, cost in dictionary[word]:
                     node = Node(word, pos, start, cost)
                     lattice[start].append(node)
-
-    """
-    print("Lattice structure:")
+    
+    
+    print("build_Lattice structure:")
     for start, nodes in lattice.items():
         print(f"Start position {start}: {[node.word for node in nodes]}")
-    """
+    
     
     return lattice
 
 # ダイクストラ法で最短経路を探索する関数
-def dijkstra_lattice(lattice, text_len):
+def dijkstra_lattice(lattice, text):
+    text_len = len(text)
     distances = {0: 0}
     previous_nodes = {0: None}
     queue = deque([0])
 
     while queue:
         current_position = queue.popleft()
-        
-        # current_positionがテキストの長さ以上の場合は終了
+
         if current_position >= text_len:
             break
 
-        # 現在の位置からのノードを処理
         for node in lattice[current_position]:
             next_position = current_position + len(node.word)
             cost = distances[current_position] + node.cost
 
-            # next_positionがcurrent_position + node.wordの終わりに一致する場合のみ
             if next_position == current_position + len(node.word):
                 if next_position not in distances or cost < distances[next_position]:
                     distances[next_position] = cost
                     previous_nodes[next_position] = node
                     queue.append(next_position)
 
-    return previous_nodes, distances
+    # 最短経路が見つかった後に、新しいラティスを構築
+    shortest_path_nodes = set()
+    position = text_len
+    while position > 0:
+        node = previous_nodes.get(position)
+        if node is None:
+            break
+        shortest_path_nodes.add(node)
+        position -= len(node.word)
+
+    # 新しいラティスを作成し、最短経路のノードのみを含む
+    new_lattice = defaultdict(list)
+    for start in range(len(text)):
+        for node in lattice[start]:
+            if node in shortest_path_nodes:
+                new_lattice[start].append(node)
+
+    return previous_nodes, distances, new_lattice  # 新しいラティス、距離、前のノードを返す
 
 
 # 最短経路から形態素を取得する関数
@@ -122,21 +137,13 @@ def combine_nouns(morphemes):
 # 形態素解析を行うメイン関数
 def morphological_analysis(text, dictionary):
     lattice = build_lattice(text, dictionary)
-    """
-    print("Lattice structure:")
-    for start, nodes in lattice.items():
-        print(f"start: {start} -> {[node.word for node in nodes]}")  # Latticeの内容を表示
     
-    previous_nodes, distances = dijkstra_lattice(lattice, len(text))
-    print("Previous Nodes:", previous_nodes)  # 経路のノードを表示
-    print("Distances:", distances)  # 距離を表示
-    """
-    
-    previous_nodes, distances = dijkstra_lattice(lattice, len(text))
+    previous_nodes, distances, new_lattice = dijkstra_lattice(lattice, text)
     result =  get_shortest_path(previous_nodes, len(text))
     
     # メモリの解放
     del lattice
+    del new_lattice
     del previous_nodes
     del distances
     dictionary.clear()
@@ -146,28 +153,3 @@ def morphological_analysis(text, dictionary):
     combined_result = combine_nouns(result)
     
     return combined_result
-"""
-# IPAdic辞書の読み込み（ディレクトリパスを指定）
-ipadic_dir_path = "/home/rf22127/mecab/mecab-ipadic-2.7.0-20070801/" # 読み込む先の辞書が保存されているディレクトリのパスを指定
-dictionary = load_ipadic_dict(ipadic_dir_path)
-
-# 辞書の内容を確認
-print("Loaded Dictionary:")
-print(f"Dictionary size: {len(dictionary)} entries")  # 辞書のエントリ数を表示
-#for word, entries in list(dictionary.items())[:10]:  # 最初の10エントリだけ表示
-#    print(f"{word}: {entries}")
-
-# テストするテキストを確認
-#text = "形態素解析を行う"  # テストするテキスト
-
-# 形態素解析の実行
-result = morphological_analysis(text, dictionary)
-
-
-# 結果の表示
-if result:
-    for word, pos in result:
-        print(f'{word} ({pos})')
-else:
-    print("No morphological analysis result found.")
-"""
