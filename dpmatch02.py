@@ -3,6 +3,11 @@ import numpy as np
 import os
 import csv
 import librosa.display
+import warnings
+
+# Numbaの警告を無視する
+warnings.filterwarnings("ignore", message="FNV hashing is not implemented in Numba")
+
 
 # MFCC抽出
 def get_mfcc(path):
