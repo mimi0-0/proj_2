@@ -85,7 +85,7 @@ def DP_test(query_file, correct_label):
 def run_experiments():
     total_tests = 0
     correct_predictions = 0
-
+# ここにテストファイルを追加していく
     test_cases = [
         ("ex01_mae.wav", "まえ"),
         ("ex02_ushiro.wav", "うしろ"),
