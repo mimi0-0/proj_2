@@ -5,44 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>スマートドローン操作アプリ</title>
     <link rel="stylesheet" href="main.css">
-    <style>
-        /* チャット表示エリアのスタイル */
-        .chat-container {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f9f9f9;
-        }
-
-        .chat-message {
-            margin: 5px 0;
-            padding: 5px;
-            border-radius: 5px;
-            background-color: #e1e1e1;
-        }
-
-        /* 入力欄のスタイル */
-        #textCommand {
-            width: calc(100% - 100px);
-            padding: 10px;
-            margin-right: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        #sendTextButton {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+    
 </head>
 <body>
     <div class="container">
-        <h1>ドローン操作</h1>
+        <h1>かんたんtello操作♪</h1>
         
         <div class="mode-selector">
             <label>
@@ -69,6 +36,7 @@
             <div class="action-controls">
                 <button class="control-button" id="takeoffButton">離陸</button>
                 <button class="control-button" id="landButton">着陸</button>
+                <button class="control-button" id="landButton">フリップ</button>
             </div>
         </div>
         
@@ -86,8 +54,28 @@
             <input type="text" id="textCommand" placeholder="テキストでコマンドを入力">
             <button class="control-button" id="sendTextButton">送信</button>
         </div>
-
-        <div class="status" id="status">STATE: 準備完了</div>
+        <div class="drone-status">
+            <!-- ドローン映像とステータスを横並びにするコンテナ -->
+            <div class="status-wrapper">
+                <!-- カメラ映像 -->
+                <div class="image-container">
+                    <h2></h2>
+                    <img id="droneImage" src="" alt="Drone Camera" />
+                </div>
+        
+                <!-- ドローンステータス -->
+                <div class="status-container">
+                    <h2></h2>
+                    <ul>
+                        <li><strong>バッテリー:</strong> <span id="batteryStatus">00%</span></li>
+                        <li><strong>飛行時間:</strong> <span id="flightTime">0:00</span></li>
+                        <li><strong>ステータス:</strong> <span id="droneStatus">True</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        
     </div>
 
     <script>
@@ -136,42 +124,19 @@
                 chatContainer.scrollTop = chatContainer.scrollHeight; // チャットエリアのスクロールを一番下に
             }
         });
+
+        // リアルタイム画像を定期的に更新
+        function updateDroneImage() {
+            const droneImage = document.getElementById('droneImage');
+            const imageUrl = 'https://image1.shopserve.jp/it2-048.cc.shopserve.jp/pic-labo/llimg/test.png?t=20111019175557'; // ここにドローンカメラのURLを設定
+
+            // 画像の更新
+            droneImage.src = imageUrl + '?' + new Date().getTime(); // キャッシュを避けるため、タイムスタンプをクエリパラメータとして追加
+        }
+
+        // 5秒ごとに画像を更新
+        setInterval(updateDroneImage, 5000);
     </script>
 </body>
 </html>
 
-
-
-
-
-    <script>
-        // モード切り替えの処理
-        const modeSelector = document.querySelectorAll('input[name="mode"]'); // ラジオボタンの取得
-        const manualControls = document.getElementById('manualControls');
-        const voiceControls = document.getElementById('voiceControls');
-        const textControls = document.getElementById('textControls');
-
-        // ラジオボタンの変更に応じて表示モードを切り替え
-        modeSelector.forEach(mode => {
-            mode.addEventListener('change', () => {
-                if (mode.value === 'manual' && mode.checked) {
-                    manualControls.style.display = 'block';
-                    voiceControls.style.display = 'none';
-                    textControls.style.display = 'none';
-                } else if (mode.value === 'voice' && mode.checked) {
-                    manualControls.style.display = 'none';
-                    voiceControls.style.display = 'block';
-                    textControls.style.display = 'none';
-                } else if (mode.value === 'text' && mode.checked) {
-                    manualControls.style.display = 'none';
-                    voiceControls.style.display = 'none';
-                    textControls.style.display = 'block';
-                }
-            });
-        });
-
-        // 初期状態で「手動操作」を選択しているため、手動操作のパネルを表示
-        document.querySelector('input[name="mode"][value="manual"]').checked = true;
-    </script>
-</body>
-</html>
