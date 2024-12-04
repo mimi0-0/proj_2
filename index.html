@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スマートドローン操作アプリ</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        /* チャット表示エリアのスタイル */
+        .chat-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .chat-message {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 5px;
+            background-color: #e1e1e1;
+        }
+
+        /* 入力欄のスタイル */
+        #textCommand {
+            width: calc(100% - 100px);
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #sendTextButton {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ドローン操作</h1>
+        
+        <div class="mode-selector">
+            <label>
+                <input type="radio" name="mode" value="manual" checked> 手動操作
+            </label>
+            <label>
+                <input type="radio" name="mode" value="voice"> 音声操作
+            </label>
+            <label>
+                <input type="radio" name="mode" value="text"> テキスト操作
+            </label>
+        </div>
+        
+        <!-- 手動操作パネル -->
+        <div class="control-panel" id="manualControls">
+            <div class="directional-controls">
+                <button class="control-button" id="upButton">↑Up</button>
+                <div class="horizontal-controls">
+                    <button class="control-button" id="leftButton">← Left</button>
+                    <button class="control-button" id="rightButton">Right →</button>
+                </div>
+                <button class="control-button" id="downButton">↓Down</button>
+            </div>
+            <div class="action-controls">
+                <button class="control-button" id="takeoffButton">離陸</button>
+                <button class="control-button" id="landButton">着陸</button>
+            </div>
+        </div>
+        
+        <!-- 音声操作パネル -->
+        <div class="control-panel" id="voiceControls" style="display: none;">
+            <button class="mic-button" id="micButton">🎤</button>
+            <p>マイクを押して音声コマンドを入力してください</p>
+        </div>
+
+        <!-- テキスト操作パネル -->
+        <div class="control-panel" id="textControls" style="display: none;">
+            <div class="chat-container" id="chatContainer">
+                <!-- 入力したテキストがここに表示されます -->
+            </div>
+            <input type="text" id="textCommand" placeholder="テキストでコマンドを入力">
+            <button class="control-button" id="sendTextButton">送信</button>
+        </div>
+
+        <div class="status" id="status">STATE: 準備完了</div>
+    </div>
+
+    <script>
+        // モード切り替えの処理
+        const modeSelector = document.querySelectorAll('input[name="mode"]'); // ラジオボタンの取得
+        const manualControls = document.getElementById('manualControls');
+        const voiceControls = document.getElementById('voiceControls');
+        const textControls = document.getElementById('textControls');
+
+        // ラジオボタンの変更に応じて表示モードを切り替え
+        modeSelector.forEach(mode => {
+            mode.addEventListener('change', () => {
+                if (mode.value === 'manual' && mode.checked) {
+                    manualControls.style.display = 'block';
+                    voiceControls.style.display = 'none';
+                    textControls.style.display = 'none';
+                } else if (mode.value === 'voice' && mode.checked) {
+                    manualControls.style.display = 'none';
+                    voiceControls.style.display = 'block';
+                    textControls.style.display = 'none';
+                } else if (mode.value === 'text' && mode.checked) {
+                    manualControls.style.display = 'none';
+                    voiceControls.style.display = 'none';
+                    textControls.style.display = 'block';
+                }
+            });
+        });
+
+        // 初期状態で「手動操作」を選択しているため、手動操作のパネルを表示
+        document.querySelector('input[name="mode"][value="manual"]').checked = true;
+
+        // テキスト送信ボタンの処理
+        document.getElementById('sendTextButton').addEventListener('click', () => {
+            const textCommand = document.getElementById('textCommand').value;
+            if (textCommand.trim()) {
+                const chatContainer = document.getElementById('chatContainer');
+                const newMessage = document.createElement('div');
+                newMessage.classList.add('chat-message');
+                newMessage.textContent = textCommand;
+
+                // チャットエリアにメッセージを追加
+                chatContainer.appendChild(newMessage);
+
+                // 入力フィールドを空にする
+                document.getElementById('textCommand').value = '';
+                chatContainer.scrollTop = chatContainer.scrollHeight; // チャットエリアのスクロールを一番下に
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+    <script>
+        // モード切り替えの処理
+        const modeSelector = document.querySelectorAll('input[name="mode"]'); // ラジオボタンの取得
+        const manualControls = document.getElementById('manualControls');
+        const voiceControls = document.getElementById('voiceControls');
+        const textControls = document.getElementById('textControls');
+
+        // ラジオボタンの変更に応じて表示モードを切り替え
+        modeSelector.forEach(mode => {
+            mode.addEventListener('change', () => {
+                if (mode.value === 'manual' && mode.checked) {
+                    manualControls.style.display = 'block';
+                    voiceControls.style.display = 'none';
+                    textControls.style.display = 'none';
+                } else if (mode.value === 'voice' && mode.checked) {
+                    manualControls.style.display = 'none';
+                    voiceControls.style.display = 'block';
+                    textControls.style.display = 'none';
+                } else if (mode.value === 'text' && mode.checked) {
+                    manualControls.style.display = 'none';
+                    voiceControls.style.display = 'none';
+                    textControls.style.display = 'block';
+                }
+            });
+        });
+
+        // 初期状態で「手動操作」を選択しているため、手動操作のパネルを表示
+        document.querySelector('input[name="mode"][value="manual"]').checked = true;
+    </script>
+</body>
+</html>

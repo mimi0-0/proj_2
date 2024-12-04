@@ -1,0 +1,131 @@
+/* 全体のレイアウト */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.container {
+    max-width: 400px;
+    margin: 60px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+/* モード選択ボタンのスタイル */
+.mode-selector {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.mode-selector label {
+    font-size: 18px;
+}
+
+/* 各操作パネルのスタイル */
+.control-panel {
+    margin-bottom: 20px;
+}
+
+.directional-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.horizontal-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 60%;
+    margin: 2px 0;
+}
+
+/* 操作ボタンのスタイル */
+.control-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0px;
+}
+
+.control-button:hover {
+    background-color: #45a049;
+}
+
+.mic-button {
+    font-size: 30px;
+    background-color: #ff9800;
+    color: rgb(165, 33, 33);
+    border: none;
+    padding: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center; /* 横方向の中央揃え */
+    align-items: center; /* 縦方向の中央揃え */
+    width: 60px;  /* ボタンの幅 */
+    height: 60px; /* ボタンの高さ */
+}
+
+.mic-button:hover {
+    background-color: #f55200;
+}
+
+/* テキスト操作のスタイル */
+#textCommand {
+    width: calc(100% - 100px);
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#sendTextButton {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#sendTextButton:hover {
+    background-color: #f0f0f0;
+}
+
+/* チャット表示エリア */
+.chat-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ffffff;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 5px;
+}
+
+.chat-message {
+    margin: 5px 0;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #dddddd;
+}
+
+/* 状態表示エリア */
+.status {
+    font-size: 18px;
+    text-align: center;
+    margin-top: 20px;
+    color: #1b0707;
+}
