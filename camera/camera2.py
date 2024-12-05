@@ -7,6 +7,7 @@ import numpy as np
 
 # データ受け取り用の関数
 def udp_receiver():
+        global full_text
         global battery_text
         global time_text
         global status_text
@@ -15,6 +16,7 @@ def udp_receiver():
             try:
                 data, server = sock.recvfrom(1518)
                 resp = data.decode(encoding="utf-8").strip()
+                full_text = resp
                 # レスポンスが数字だけならバッテリー残量
                 if resp.isdecimal():    
                     battery_text = "Battery:" + resp + "%"
@@ -115,6 +117,12 @@ def speed20():
             sent = sock.sendto('speed 20'.encode(encoding="utf-8"), TELLO_ADDRESS)
         except:
             pass
+# 反転
+def flip():
+        try:
+            sent = sock.sendto('flip r'.encode(encoding="utf-8"), TELLO_ADDRESS)
+        except:
+            pass
 
 # Tello側のローカルIPアドレス(デフォルト)、宛先ポート番号(コマンドモード用)
 TELLO_IP = '192.168.10.1'
@@ -182,6 +190,14 @@ while True:
     frame2 = cv2.resize(frame, (int(frame_width/2), int(frame_height/2)))
     
     # 送信したコマンドを表示
+    cv2.putText(frame2,
+            text=full_text,
+            org=(10, 100),
+            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+            fontScale=0.5,
+            color=(0, 255, 0),
+            thickness=1,
+            lineType=cv2.LINE_4)
     cv2.putText(frame2,
             text="Cmd:" + command_text,
             org=(10, 20),
@@ -274,6 +290,10 @@ while True:
     elif key == ord('m'):
         speed40()
         command_text = "High speed"
+    #fキーで反転
+    elif key == ord("f"):
+        flip()
+        command_text = "flip"
 
 cap.release()
 cv2.destroyAllWindows()

@@ -41,7 +41,6 @@ thread.start()
 
 # コマンドモード
 sock.sendto('command'.encode('utf-8'), TELLO_ADDRESS)
-
 time.sleep(1)
 
 # カメラ映像のストリーミング開始

@@ -1,0 +1,5 @@
+MAE [mae] mae
+MIGI [migi] migi
+HIDARI [hidari] hidari
+USIRO [usiro] usiro
+SIL [sil] sil
