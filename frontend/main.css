@@ -208,3 +208,32 @@ h1 {
 #droneStatus.true {
     color: green;
 }
+
+.container {
+    max-width:1000px;
+    margin: 0 auto;
+    background-color: rgb(255, 255, 255);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.status-container {
+    display: flex;
+    flex-direction: row;  /* 横並びにする */
+    flex-wrap: wrap;  /* アイテムが横に広がりすぎた場合に折り返す */
+    gap: 15px;  /* アイテム間の間隔を広く */
+    justify-content: space-between;  /* アイテムを横方向に分散させる */
+}
+
+.status-item {
+    background-color: #87ad62;
+    padding: 10px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+strong {
+    font-weight: bold;
+}

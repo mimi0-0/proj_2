@@ -35,7 +35,33 @@ def send_to_tello(command):
         print(f"Error sending command to Tello: {e}")
         return f"Error: {str(e)}"
 
+'''
+def get_tello_data():
+    command = "command"  # Telloへのコマンド
+    sock.sendto(command.encode('utf-8'), (TELLO_IP, TELLO_PORT))
+    sock.settimeout(5.0)
+    try:
+        response, _ = sock.recvfrom(1024)
+        return response.decode('utf-8')
+    except socket.timeout:
+        return "Telloからの応答がありません"
 
+def parse_tello_data(data):
+    fields = data.split(';')
+    data_dict = {}
+    for field in fields:
+        if field:
+            key, value = field.split(':')
+            data_dict[key] = value
+    return data_dict
+
+@app.route('/')
+def index():
+    data = get_tello_data()
+    data_dict = parse_tello_data(data)
+    jsonify(data_dict)  
+    print(jsonify(data_dict))
+'''
 @app.route('/command', methods=['POST', 'OPTIONS'])
 def handle_command():
     if request.method == 'OPTIONS':  # OPTIONSリクエストへの対応

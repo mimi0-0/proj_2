@@ -10,7 +10,6 @@
 <body>
     <div class="container">
         <h1>tello</h1>
-        
         <!-- モード選択 -->
         <div class="mode-selector">
             <label>
@@ -55,7 +54,48 @@
             <button class="control-button" id="sendTextButton" onclick="sendTextCommand()">送信</button>
         </div>
 
-        
+        <div class="container">
+        <h1>Tello ドローンの現在の状態</h1>
+        <div class="status-container">
+            <div class="status-item">
+                <strong>ピッチ (pitch):</strong> {{ data['pitch'] }}°
+            </div>
+            <div class="status-item">
+                <strong>ロール (roll):</strong> {{ data['roll'] }}°
+            </div>
+            <div class="status-item">
+                <strong>ヨー (yaw):</strong> {{ data['yaw'] }}°
+            </div>
+            <div class="status-item">
+                <strong>バッテリー (battery):</strong> {{ data['bat'] }}%
+            </div>
+            <div class="status-item">
+                <strong>高度 (altitude):</strong> {{ data['h'] }} m
+            </div>
+            <div class="status-item">
+                <strong>温度 (温度低):</strong> {{ data['templ'] }}°C
+            </div>
+            <div class="status-item">
+                <strong>温度 (温度高):</strong> {{ data['temph'] }}°C
+            </div>
+            <div class="status-item">
+                <strong>バロメーター (barometer):</strong> {{ data['baro'] }} hPa
+            </div>
+            <div class="status-item">
+                <strong>加速度 (agx):</strong> {{ data['agx'] }} m/s²
+            </div>
+            <div class="status-item">
+                <strong>加速度 (agy):</strong> {{ data['agy'] }} m/s²
+            </div>
+            <div class="status-item">
+                <strong>加速度 (agz):</strong> {{ data['agz'] }} m/s²
+            </div>
+            <div class="status-item">
+                <strong>時間 (time):</strong> {{ data['time'] }}
+            </div>
+        </div>    
+
+
     </div>
     <script src="script.js"></script>
 </body>
