@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: docker/python/Dockerfile
     ports:
-      - 8080:8080
+      - 8080:5000
 
   front:
     build:
@@ -14,10 +14,11 @@ services:
       dockerfile: docker/nodejs/Dockerfile
     volumes:
       - ./front:/src # ローカルをコンテナ内にマウント
-    command: sh -c "cd react-project && yarn start" #コンテナを立ち上げたときに自動的にbuildする
+    command: sh -c "cd react-project && yarn start " #コンテナを立ち上げたときに自動的にbuildする
     ports:
       - "3000:3000"
- 
+  redis:
+    image: redis:latest
   nginx:
     image: nginx:latest
     ports:

@@ -1,8 +1,8 @@
 from flask import Flask
 
-app = Flask(__name__)
+main = Flask(__name__)
 
-@app.route('/')
+@main.route('/')
 def flask_app():
     return 'おめでとう成功だ!'
 if __name__ == '__main__':
