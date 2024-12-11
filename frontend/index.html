@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ドローン操作アプリ</title>
+    <link rel="stylesheet" href="main.css">
+    
+</head>
+<body>
+    <div class="container">
+        <h1>tello</h1>
+        
+        <!-- モード選択 -->
+        <div class="mode-selector">
+            <label>
+                <input type="radio" name="mode" value="manual" checked onclick="changeMode()"> 手動操作
+            </label>
+            <label>
+                <input type="radio" name="mode" value="voice" onclick="changeMode()"> 音声操作
+            </label>
+            <label>
+                <input type="radio" name="mode" value="text" onclick="changeMode()"> テキスト操作
+            </label>
+        </div>
+        
+        <!-- 手動操作パネル -->
+        <div class="control-panel" id="manualControls">
+            <div class="directional-controls">
+                <button onclick="sendCommand('up')" class="control-button" id="upButton">↑Up</button>
+                <div class="horizontal-controls">
+                    <button onclick="sendCommand('left')" class="control-button" id="leftButton">← Left</button>
+                    <button onclick="sendCommand('right')" class="control-button" id="rightButton">Right →</button>
+                </div>
+                <button onclick="sendCommand('down')" class="control-button" id="downButton">↓Down</button>
+            </div>
+            <div class="action-controls">
+                <button onclick="sendCommand('takeoff')" class="control-button" id="takeoffButton">離陸</button>
+                <button onclick="sendCommand('land')" class="control-button" id="landButton">着陸</button>
+                <button onclick="sendCommand('flip')" class="control-button" id="flipButton">フリップ</button>
+            </div>
+        </div>
+        
+        <!-- 音声操作パネル -->
+        <div class="control-panel" id="voiceControls" style="display: none;">
+            <button class="mic-button" id="micButton">🎤</button>
+            <p>マイクを押して音声コマンドを録音してください。</p>
+        </div>
+
+        <!-- テキスト操作パネル -->
+        <div class="control-panel" id="textControls" style="display: none;">
+            <div class="chat-container" id="chatContainer"></div>
+            <input type="text" id="textCommand" placeholder="テキストでコマンドを入力">
+            <button class="control-button" id="sendTextButton" onclick="sendTextCommand()">送信</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
