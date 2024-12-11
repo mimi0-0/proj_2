@@ -35,6 +35,7 @@
                 <button onclick="sendCommand('down')" class="control-button" id="downButton">↓Down</button>
             </div>
             <div class="action-controls">
+                <button onclick="sendCommand('Command')" class="control-button" id="takeoffButton">接続</button>
                 <button onclick="sendCommand('takeoff')" class="control-button" id="takeoffButton">離陸</button>
                 <button onclick="sendCommand('land')" class="control-button" id="landButton">着陸</button>
                 <button onclick="sendCommand('flip')" class="control-button" id="flipButton">フリップ</button>
@@ -53,6 +54,8 @@
             <input type="text" id="textCommand" placeholder="テキストでコマンドを入力">
             <button class="control-button" id="sendTextButton" onclick="sendTextCommand()">送信</button>
         </div>
+
+        
     </div>
     <script src="script.js"></script>
 </body>

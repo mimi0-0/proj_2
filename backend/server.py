@@ -10,10 +10,11 @@ CORS(app)
 # TelloのIPとポート設定
 TELLO_IP = "192.168.10.1"  # TelloのIPアドレス
 TELLO_PORT = 8889  # Telloが受信するポート番号
+LOCAL_PORT = 8890  # ローカルでTelloからの応答を受信するポート
 
 # UDPソケットのセットアップ
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#sock.bind(("",5555)) 
+sock.bind(('', LOCAL_PORT))
 
 def send_to_tello(command):
     """
@@ -22,8 +23,17 @@ def send_to_tello(command):
     try:
         print(f"Sending command to Tello: {command}")
         sock.sendto(command.encode('utf-8'), (TELLO_IP, TELLO_PORT))
+        # 応答を受信（タイムアウトを設定可能）
+        sock.settimeout(5.0)  # 5秒でタイムアウト
+        response, _ = sock.recvfrom(1024)  # 最大1024バイト受信
+        print(f"Response from Tello: {response.decode('utf-8')}")
+        return response.decode('utf-8')
+    except socket.timeout:
+        print("No response from Tello (timeout)")
+        return "No response (timeout)"
     except Exception as e:
         print(f"Error sending command to Tello: {e}")
+        return f"Error: {str(e)}"
 
 
 @app.route('/command', methods=['POST', 'OPTIONS'])
@@ -73,4 +83,4 @@ def handle_upload():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)
