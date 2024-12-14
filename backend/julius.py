@@ -4,6 +4,12 @@ import sys
 import os
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
 
+#julius = "C:/.../dictation-kit-4.5/bin/windows/julius.exe"
+#main = "C:/.../dictation-kit-4.5/main.jconf"
+#am_dnn = "C:/.../dictation-kit-4.5/am-dnn.jconf"
+#julius_dnn = "C:/.../dictation-kit-4.5/julius.dnnconf"
+#input_file = "C:/.../BASIC5000_0001.wav"
+
 class Julius_Recognition():
     def __init__(self, julius, main, am_dnn, julius_dnn, input_file):
         self.julius = julius
