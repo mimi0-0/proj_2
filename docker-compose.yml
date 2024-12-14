@@ -1,24 +1,24 @@
 services:
-  back:
+  backend:
     volumes:
-      - ./back:/app
+      - ./backend:/app
     build:
       context: .
       dockerfile: docker/python/Dockerfile
     ports:
-      - 8080:5000
+      - 8080:8080
 
-  front:
+  frontend:
     build:
       context: .
       dockerfile: docker/nodejs/Dockerfile
-    volumes:
-      - ./front:/src # ローカルをコンテナ内にマウント
-    command: sh -c "cd react-project && yarn start " #コンテナを立ち上げたときに自動的にbuildする
     ports:
-      - "3000:3000"
-  redis:
-    image: redis:latest
+      - "3000:3000" # ホストのポート3000をコンテナのポート80にマッピング
+    volumes:
+      - ./frontend:/var/www/html/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
   nginx:
     image: nginx:latest
     ports:
