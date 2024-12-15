@@ -1,7 +1,4 @@
-fastapi
-
-uvicorn
-
-sqlalchemy
-
-pymysql
+Flask
+Werkzeug
+flask_cors
+numpy

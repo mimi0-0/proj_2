@@ -6,18 +6,10 @@ services:
       context: .
       dockerfile: docker/python/Dockerfile
     ports:
-      - 8080:8080
-
-  frontend:
-    build:
-      context: .
-      dockerfile: docker/nodejs/Dockerfile
-    ports:
-      - "3000:3000" # ホストのポート3000をコンテナのポート80にマッピング
-    volumes:
-      - ./frontend:/var/www/html/app
-    environment:
-      - CHOKIDAR_USEPOLLING=true
+      - 5001:5000
+    command: flask run --host 0.0.0.0 
+  redis:
+    image: redis
 
   nginx:
     image: nginx:latest
