@@ -16,8 +16,8 @@ import wave
 # wavデータを読み込むためのモジュール(wave)をインポート
 import wave
 
-#録音用モジュールをインポート
-import soundcard as sc
+#サンプリングレート変換用モジュールをインポート
+import librosa
 
 #音声ファイルの保存用モジュールをインポート
 import soundfile as sf
@@ -71,19 +71,15 @@ def ctc_simple_decode(int_vector, token_list):
     return output
 
     
-def CTC(unit,token_list,mean_std,model,config,recording_path="/Users/owner/proj/decode/record"):
+def CTC(unit,wav_path,token_list,mean_std,model,config,recording_path):
     fs = 16000
-    recording_sec = 5
-    file = "recording.wav"
 
-    #録音する。
-    wav_path = os.path.join(recording_path,file)
-    default_mic = sc.default_microphone()
-    print("Recording...")
-    data = default_mic.record(samplerate=fs, numframes=fs*recording_sec)
-    print("Saving...")
-    sf.write(wav_path, data =data[:, 0], samplerate = fs)
-    print("Done.")
+    #サンプリングレートを変換
+    #filename = "recodingSr16000.wav"
+    #wav_path_out = os.path.join(recording_path, filename)
+    #wav, _ = librosa.load(wav_path,sr = fs,mono = True)
+    #sf.write(wav_path_out, wav, fs, 'PCM_16')
+    
 
     print("Calculating MFCC...")
 
@@ -142,7 +138,7 @@ def CTC(unit,token_list,mean_std,model,config,recording_path="/Users/owner/proj/
     utterance_id = 1
 
     # 特徴量ファイルの名前(splitextで拡張子を取り除いている)
-    out_file = os.path.splitext(file)[0]
+    out_file = os.path.splitext(os.path.basename(wav_path))[0]
     out_file = os.path.join(os.path.abspath(recording_path), 
                             out_file + '.bin')
 
@@ -361,12 +357,13 @@ def CTC(unit,token_list,mean_std,model,config,recording_path="/Users/owner/proj/
             string_hypothesis = string_hypothesis + letter
 
         
-        dictionary = ["まえ","うしろ","みぎ","ひだり","ちゃくりく","すすむ","まがる","ひゃくせんちめーとる"]
-        dictionary_phone = ["mae","usiro","migi","hidari","chakuriku","susumu","magaru","hyakusenchimeetoru"]
-        dictionary_char = ["前","後ろ","右","左","着陸","進む","曲がる","100cm"]
+        dictionary = ["じょうしょう","かこう","まえ","うしろ","みぎ","ひだり","りりく","ちゃくりく","まがる","すすむ","ひゃくせんちめーとる"]
+        dictionary_phone = ["joushou","kakou","mae","usiro","migi","hidari","ririku","chakuriku","magaru","susumu","hyakusenchimeetoru"]
+        dictionary_char = ["上昇","下降","前","後ろ","右","左","離陸","着陸","曲がる","進む","100cm"]
         dict = []
-        distance = []
+        distance_bet_wards = []
         time = []
+        parts = []
         string = ""
         i = 0
         
@@ -375,19 +372,57 @@ def CTC(unit,token_list,mean_std,model,config,recording_path="/Users/owner/proj/
                 for ward in dictionary:
                     if edit_dist(string_hypothesis[i:n],ward)>edit_dist(string_hypothesis[i:n+1],ward):
                         time.append(n+1)
-                        distance.append(edit_dist(string_hypothesis[i:n],ward))
+                        distance_bet_wards.append(edit_dist(string_hypothesis[i:n],ward))
                         dict.append(ward)
-            if not distance:
+            if not distance_bet_wards:
                 break
             else:
-                min_index=distance.index(min(distance))
+                min_index=distance_bet_wards.index(min(distance_bet_wards))
                 i = time[min_index]
                 index=dictionary.index(dict[min_index])
                 string = string + dictionary_char[index]
-                command.append(dictionary[index])
+                parts.append(dictionary[index])
                 time = []
-                distance = []
+                distance_bet_wards = []
                 dict = []
 
+    print(parts)
 
-    return string
+    command = ""
+    distance = ""
+    angle = ""
+
+    for part in parts:
+        if(part=="じょうしょう"):
+            command = "up"
+        elif(part=="かこう"):
+            command = "down"
+        elif(part == "まえ"):
+            command = "forward"
+        elif(part=="うしろ"):
+            command = "back"
+        elif(part=="みぎ"):
+            command = "right"
+        elif(part=="ひだり"):
+            command = "left"
+        elif(part=="曲がる"):
+            command = "cw"
+        elif(part == "ひゃくせんちめーとる"):
+            distance = "100"
+        elif(part == "ちゃくりく"):
+            command = "land"
+        elif(part == "りりく"):
+            command = "takeoff" 
+
+    if not command:
+        sentence = "land"
+    elif(command == "up" or command=="down"or command=="forward" or command== "back" or command=="right" or command == "left"):
+        if not distance:
+            distance = "100"
+        sentence = command + " "+distance
+    elif(command =="takeoff" or command == "land"):
+        sentence = command
+
+
+
+    return sentence
