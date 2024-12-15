@@ -2,3 +2,4 @@ Flask
 Werkzeug
 flask_cors
 numpy
+librosa

@@ -8,6 +8,10 @@ services:
     ports:
       - 5001:5000
     command: flask run --host 0.0.0.0 
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+
   redis:
     image: redis
 
