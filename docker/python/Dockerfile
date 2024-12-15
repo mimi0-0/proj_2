@@ -22,3 +22,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN apt update
 #RUN apt install build-essential gcc g++
 RUN pip install matplotlib
+RUN apt -y update
+RUN apt -y install libopencv-dev libopencv-core-dev python3-opencv libopencv-contrib-dev opencv-data
