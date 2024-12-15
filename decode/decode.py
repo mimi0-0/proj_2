@@ -16,5 +16,5 @@ if __name__ == "__main__":
 
     config_file = os.path.join(model_dir, 'config.json')
 
-    hypothesis = CTC(unit,token_list_path,mean_std_file,model_file,config_file,path)
+    hypothesis = CTC(unit =unit,token_list=token_list_path,mean_std=mean_std_file,model=model_file,config=config_file,recording_path=path)
     print(hypothesis)

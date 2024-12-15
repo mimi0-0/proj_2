@@ -354,14 +354,40 @@ def CTC(unit,token_list,mean_std,model,config,recording_path="/Users/owner/proj/
         print("Done.")
         print("---result--- ")
         print(hypothesis)
+
         string_hypothesis = ""
+        
         for letter in hypothesis:
             string_hypothesis = string_hypothesis + letter
 
-        #認識結果から最も近い距離の単語を取得
-        dictionary = ["まえ","うしろ","みぎ","ひだり","りりく","ちゃくりく","進んで","ひゃくめーとる"]
+        
+        dictionary = ["まえ","うしろ","みぎ","ひだり","ちゃくりく","すすむ","まがる","ひゃくせんちめーとる"]
+        dictionary_phone = ["mae","usiro","migi","hidari","chakuriku","susumu","magaru","hyakusenchimeetoru"]
+        dictionary_char = ["前","後ろ","右","左","着陸","進む","曲がる","100cm"]
+        dict = []
         distance = []
-        for ward in dictionary:
-            distance.append(edit_dist(string_hypothesis, ward))
-        min_index = distance.index(min(distance))
-    return dictionary[min_index]
+        time = []
+        string = ""
+        i = 0
+        
+        while i < len(string_hypothesis):
+            for n in range(i,len(string_hypothesis)+1):
+                for ward in dictionary:
+                    if edit_dist(string_hypothesis[i:n],ward)>edit_dist(string_hypothesis[i:n+1],ward):
+                        time.append(n+1)
+                        distance.append(edit_dist(string_hypothesis[i:n],ward))
+                        dict.append(ward)
+            if not distance:
+                break
+            else:
+                min_index=distance.index(min(distance))
+                i = time[min_index]
+                index=dictionary.index(dict[min_index])
+                string = string + dictionary_char[index]
+                command.append(dictionary[index])
+                time = []
+                distance = []
+                dict = []
+
+
+    return string
