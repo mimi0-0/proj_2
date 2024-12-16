@@ -3,31 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音声文字起こしアプリ</title>
+    <title>ドローン操作アプリ</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>音声文字起こしアプリ</h1>
+        <h1>ドローン操作アプリ</h1>
 
-        <!-- 音声録音ボタン -->
-        <div id="voiceControls">
-            <button class="mic-button" id="micButton">🎤 音声を録音する</button>
-            <p>マイクボタンを押して録音を開始してください。</p>
+        <!-- モード選択 -->
+        <div class="mode-selector">
+            <label>
+                <input type="radio" name="mode" value="manual" checked onclick="changeMode('manual')"> 手動操作
+            </label>
+            <label>
+                <input type="radio" name="mode" value="voice" onclick="changeMode('voice')"> 音声操作
+            </label>
+            <label>
+                <input type="radio" name="mode" value="text" onclick="changeMode('text')"> テキスト操作
+            </label>
         </div>
 
-        <!-- 録音した文字起こし結果 -->
-        <div id="transcriptionResult">
-            <h2>文字起こし結果:</h2>
-            <p id="resultText">ここに文字起こしの結果が表示されます。</p>
+        <!-- 手動操作パネル -->
+        <div class="control-panel" id="manualControls">
+            <div class="directional-controls">
+                <button onclick="sendCommand('up')" class="control-button">↑ Up</button>
+                <div class="horizontal-controls">
+                    <button onclick="sendCommand('left')" class="control-button">← Left</button>
+                    <button onclick="sendCommand('right')" class="control-button">Right →</button>
+                </div>
+                <button onclick="sendCommand('down')" class="control-button">↓ Down</button>
+            </div>
+            <div class="action-controls">
+                <button onclick="sendCommand('Command')" class="control-button">接続</button>
+                <button onclick="sendCommand('takeoff')" class="control-button">離陸</button>
+                <button onclick="sendCommand('land')" class="control-button">着陸</button>
+                <button onclick="sendCommand('flip')" class="control-button">フリップ</button>
+            </div>
+        </div>
+
+        <!-- 音声操作パネル -->
+        <div class="control-panel" id="voiceControls" style="display: none;">
+            <button class="mic-button" id="micButton">🎤 音声を録音する</button>
+            <p>マイクを押して録音を開始してください。</p>
+        </div>
+
+        <!-- テキスト操作パネル -->
+        <div class="control-panel" id="textControls" style="display: none;">
+            <input type="text" id="textCommand" placeholder="テキストでコマンドを入力">
+            <button class="control-button" id="sendTextButton" onclick="sendTextCommand()">送信</button>
         </div>
     </div>
 
     <script>
-        const micButton = document.getElementById('micButton');
-        const resultText = document.getElementById('resultText');
+        // モード切替
+        function changeMode(mode) {
+            document.getElementById('manualControls').style.display = mode === 'manual' ? 'block' : 'none';
+            document.getElementById('voiceControls').style.display = mode === 'voice' ? 'block' : 'none';
+            document.getElementById('textControls').style.display = mode === 'text' ? 'block' : 'none';
+        }
 
-        micButton.addEventListener('click', async () => {
+        // 手動操作コマンド送信
+        function sendCommand(command) {
+            fetch('/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: command })
+            }).then(response => response.json())
+              .then(data => console.log(data));
+        }
+
+        // 音声録音
+        const micButton = document.getElementById('micButton');
+        micButton?.addEventListener('click', async () => {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const mediaRecorder = new MediaRecorder(stream);
             const audioChunks = [];
@@ -47,7 +94,8 @@
                 });
 
                 const data = await response.json();
-                resultText.textContent = data.transcription || '文字起こしに失敗しました。';
+                alert(`文字起こし結果: ${data.transcription}`);
+                sendCommand(data.transcription); // 文字起こし結果を送信
             });
 
             mediaRecorder.start();
@@ -56,6 +104,12 @@
                 stream.getTracks().forEach(track => track.stop());
             }, 5000); // 5秒間録音
         });
+
+        // テキストコマンド送信
+        function sendTextCommand() {
+            const textCommand = document.getElementById('textCommand').value;
+            sendCommand(textCommand);
+        }
     </script>
 </body>
 </html>
