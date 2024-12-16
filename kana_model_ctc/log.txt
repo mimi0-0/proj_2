@@ -1,0 +1,24 @@
+epoch	train loss	train err	valid loss	valid err
+1	66.767651	     ---     	13.010725	13.460734	
+2	11.414247	     ---     	6.812364	7.100014	
+3	6.688757	     ---     	5.307361	5.356396	
+4	4.636496	     ---     	4.208497	4.268378	
+5	3.376234	     ---     	4.615911	4.714744	
+6	2.481083	     ---     	4.353865	4.282327	
+7	1.865583	     ---     	4.307875	4.212582	(Decay learning rate: 1.000000 -> 0.500000)
+8	0.767814	     ---     	3.862956	3.445390	
+9	0.433556	     ---     	4.061816	3.291951	(Decay learning rate: 0.500000 -> 0.250000)
+10	0.192310	     ---     	3.896989	3.054819	(Decay learning rate: 0.250000 -> 0.125000)
+11	0.097350	     ---     	4.136406	3.152462	
+    Early stopping. (early_stop_threshold = 3)
+---------------Summary------------------
+Final epoch model -> /home/st6322065/proj/exp_train_large/kana_model_ctc/final_model.pt
+    train loss: 0.097350
+    train token error rate: (not evaluated)
+    validation loss: 4.136406
+    validation token error rate: 3.152462 %
+Best epoch model (8-th epoch) -> /home/st6322065/proj/exp_train_large/kana_model_ctc/best_model.pt
+    train loss: 0.767814
+    train token error rate: (not evaluated)
+    validation loss: 3.862956
+    validation token error rate: 3.445390 %
