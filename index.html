@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音声文字起こしアプリ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>音声文字起こしアプリ</h1>
+
+        <!-- 音声録音ボタン -->
+        <div id="voiceControls">
+            <button class="mic-button" id="micButton">🎤 音声を録音する</button>
+            <p>マイクボタンを押して録音を開始してください。</p>
+        </div>
+
+        <!-- 録音した文字起こし結果 -->
+        <div id="transcriptionResult">
+            <h2>文字起こし結果:</h2>
+            <p id="resultText">ここに文字起こしの結果が表示されます。</p>
+        </div>
+    </div>
+
+    <script>
+        const micButton = document.getElementById('micButton');
+        const resultText = document.getElementById('resultText');
+
+        micButton.addEventListener('click', async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            const audioChunks = [];
+
+            mediaRecorder.addEventListener('dataavailable', event => {
+                audioChunks.push(event.data);
+            });
+
+            mediaRecorder.addEventListener('stop', async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const formData = new FormData();
+                formData.append('audio', audioBlob);
+
+                const response = await fetch('/transcribe', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json();
+                resultText.textContent = data.transcription || '文字起こしに失敗しました。';
+            });
+
+            mediaRecorder.start();
+            setTimeout(() => {
+                mediaRecorder.stop();
+                stream.getTracks().forEach(track => track.stop());
+            }, 5000); // 5秒間録音
+        });
+    </script>
+</body>
+</html>
