@@ -3,7 +3,11 @@ import re
 import sys
 import os
 import julius
-
+ain = "/app/dictation-kit-4.5/main.jconf"
+am_dnn = "/app/dictation-kit-4.5/am-dnn.jconf"
+julius_dnn = "/app/dictation-kit-4.5/julius.dnnconf"
+input_file = "/app/dictation-kit-4.5/BASIC5000_0001.wav"
+julius_path = "/app/dictation-kit-4.5/bin/window/julius.exe"
 #相対パス設定
 main = "/app/dictation-kit-4.5/main.jconf"
 am_dnn = "/app/dictation-kit-4.5/am-dnn.jconf"
