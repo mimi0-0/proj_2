@@ -8,6 +8,14 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+@app.route('/command', methods=['POST'])
+def command():
+    data = request.get_json()
+    command = data.get('command', '')
+    # コマンド処理のロジックを追加
+    print(f"受信したコマンド: {command}")
+    return jsonify({'status': 'success', 'command': command})
+
 @app.route('/transcribe', methods=['POST'])
 def transcribe_audio():
     if 'audio' not in request.files:
@@ -16,11 +24,10 @@ def transcribe_audio():
     audio_file = request.files['audio']
     recognizer = sr.Recognizer()
     try:
-        # ファイルをSpeechRecognitionが読み取れる形式に変換
+        # SpeechRecognition用の形式に変換
         audio_data = sr.AudioFile(io.BytesIO(audio_file.read()))
         with audio_data as source:
             audio = recognizer.record(source)
-        # 音声を文字起こし
         transcription = recognizer.recognize_google(audio, language='ja-JP')
         return jsonify({'transcription': transcription})
     except Exception as e:
