@@ -8,7 +8,7 @@ services:
     ports:
       - 5001:5000
     #command: flask run --host 0.0.0.0 
-    command: python3 app.py
+    command: python3 server2.py
     #environment:
     #  - FLASK_ENV=development
     #  - FLASK_APP=app.py
