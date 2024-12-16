@@ -31,7 +31,7 @@ class Julius_Recognition():
                 if match:
                     result = match.group(1).strip()
                     results.append(result)
-            return result
+            return result.replace(' ', '')
         
         except Exception as e:
             print(f"[ERROR] {e}")
