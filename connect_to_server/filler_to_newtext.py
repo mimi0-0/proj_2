@@ -70,7 +70,6 @@ def build_lattice(text, dictionary):
                 lattice[start].append(node)
             # 辞書に存在する場合
             elif word in dictionary:
-                print(f"Adding to lattice: {word}")  # デバッグ用
                 for pos, read, cost in dictionary[word]:
                     node = Node(word, pos, read, start, cost)
                     lattice[start].append(node)
