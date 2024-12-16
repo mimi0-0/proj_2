@@ -1,6 +1,6 @@
 from flask import render_template, request, jsonify
 from testapp import app
-import speech_recognition as sr
+#import speech_recognition as sr
 import socket  # Telloに送るためにsocketを使用
 from dpmatch01 import DP_ans, load_dataset 
 import os
