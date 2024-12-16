@@ -58,108 +58,39 @@ def process_root_and_generate_commands(root, processor):
         # verbs と verb_dependents に動詞とその依存語情報を追加
         processor.verbs.append((verb, verb_pos))
         processor.verb_dependents.append(list(zip(dependents, dependents_pos)))  # 依存語と品詞をペアでリストに追加
-"""
-# コマンドを作成する
+        
+ 
 def change_to_command(verb_list, dependents_list):
     com = ""
     i = 0
     for verb in verb_list:
         exec_com = ""
-        speed_num = 50
-        height_num = 300
-        far_num = 100
-        ran_num = 90
-        plus_com = ""
-        if "ゆっくり" in dependents_list[i]:
-            plus_com = f"speed {speed_num - 10} /"
-        elif "はやく" in dependents_list[i] or "早" in dependents_list[i]:
-            plus_com = f"speed {speed_num + 10} /"
-
-        #print("進" in verb)
-        if any("進" in word for word in verb[i].split()): 
-            if "前" in verb:
-                exec_com = 'forward'
-            elif "後" in verb: 
-                exec_com = 'back'
-            else:
-                if "後" in dependents_list[i]:
-                    exec_com = 'back' 
-                elif "右" in dependents_list[i]:
-                    exec_com = 'right' 
-                elif "左" in dependents_list[i]:
-                    exec_com = 'left'        
-                else:
-                    exec_com = 'forward'
-            exta_num = extract_numbers(dependents_list[i])
-            if exta_num != '':
-                far_num = exta_num
-            exec_com = exec_com + " " + far_num    
-
-        elif "落" in verb:
-            if "速" in dependents_list[i] or "スピード" in dependents_list[i]:
-                exec_com = 'speed ' + str(speed_num - 10)
-            else:
-                exec_com = 'down '
-                exta_num = extract_numbers(dependents_list[i])
-                if exta_num != '':
-                    height_num = exta_num
-                exec_com = exec_com + " " + str(height_num)
-
-        elif "反転" in verb or "宙返り" in verb: 
-            if "後" in dependents_list[i]:
-                exec_com = 'flip b'
-            if "右" in dependents_list[i]:
-                exec_com = 'flip r' 
-            elif "左" in dependents_list[i]:
-                exec_com = 'flip l'
-            else:
-                exec_com = 'flip f'
-
-        elif "旋回" in verb or "描" in verb:
-            if "右" in dependents_list[i]:
-                exec_com = 'curve 0 0 0 ' 
-            elif "左" in dependents_list[i]:
-                exec_com = 'curve 0 0 0'  
-
-        elif "回" in verb or "曲" in verb:
-            if "右" in dependents_list[i]:
-                exec_com = 'cw' 
-            else:
-                exec_com = 'ccw'
-            exta_num = extract_numbers(dependents_list[i])
-            if exta_num != '':
-                ran_num = exta_num
-            exec_com = exec_com + " " + ran_num  
-
-        com = com + plus_com + exec_com + " /"
-        i += 1
-
-    return com
-"""
-def change_to_command(verb_list, dependents_list):
-    com = ""
-    i = 0
-    for verb in verb_list:
-        exec_com = ""
-        speed_num = 30
+        speed_num = 40
         height_num = 10
         far_num = 100
         ran_num = 90
         plus_com = ""
 
         if "ゆっくり" in [dep[0] for dep in dependents_list[i]]:
-            plus_com = f"speed {speed_num - 10} /"
+            plus_com = f"speed {speed_num - 20} /"
         elif "はやく" in [dep[0] for dep in dependents_list[i]] or "早" in [dep[0] for dep in dependents_list[i]]:
-            plus_com = f"speed {speed_num + 10} /"
+            plus_com = f"speed {speed_num + 20} /"
 
         # 動詞部分（verb[0]）を分割してチェックするように修正
-        if "進" in verb[0]:
-            if any("前" in dep[0] for dep in dependents_list[i]):
+        if any("進" in word for word in verb[i].split()): 
+            if any("前" in word for word in verb[i].split()):
                 exec_com = 'forward'
-            elif any("後" in dep[0] or "後ろ" in dep[0] for dep in dependents_list[i]):
+            elif any("後" in word for word in verb[i].split()):
                 exec_com = 'back'
             else:
-                exec_com = 'forward'
+                if any("後" in word for word in dependents_list[i]):
+                    exec_com = 'back' 
+                elif any("右" in word for word in dependents_list[i]):
+                    exec_com = 'right' 
+                elif any("左" in word for word in dependents_list[i]):
+                    exec_com = 'left'        
+                else:
+                    exec_com = 'forward'
 
             # 数詞とその単位を処理
             exta_num = extract_numbers(dependents_list[i])
@@ -171,7 +102,7 @@ def change_to_command(verb_list, dependents_list):
         
         elif "落" in verb[0]:
             if any("速" in dep[0] for dep in dependents_list[i]) or any("スピード" in dep[0] for dep in dependents_list[i]):
-                exec_com = 'speed ' + str(speed_num - 10)
+                exec_com = 'speed ' + str(speed_num - 20)
             else:
                 exec_com = 'down '
                 exta_num = extract_numbers(dependents_list[i])
@@ -181,7 +112,7 @@ def change_to_command(verb_list, dependents_list):
         
         elif "上" in verb[0]:
             if any("速" in dep[0] for dep in dependents_list[i]) or any("スピード" in dep[0] for dep in dependents_list[i]):
-                exec_com = 'speed ' + str(speed_num + 10)
+                exec_com = 'speed ' + str(speed_num + 20)
             else:
                 exec_com = 'up '
                 exta_num = extract_numbers(dependents_list[i])
@@ -248,14 +179,14 @@ def process_text(text, dictionary):
     return command, processor.verbs, processor.verb_dependents
 
 
-"""
+
 if __name__ == "__main__":
     ipadic_dir_path = "/home/rf22127/mecab/mecab-ipadic-2.7.0-20070801/"
 
     # load_ipadic_dict：辞書を読み込む
     dictionary = load_ipadic_dict(ipadic_dir_path)
 
-    text = "右に曲がる前に後ろに100cm進む"
+    text = "右に曲がる前に右に100cm進む"
     root = dependency_analysis_with_syntax_tree(text, dictionary)
     
     # 構文木の出力
@@ -282,4 +213,3 @@ if __name__ == "__main__":
     print("Verbs:", processor.verbs)
     print("Verb Dependents:", processor.verb_dependents)
 
-"""
