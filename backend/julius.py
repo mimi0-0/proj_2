@@ -23,8 +23,9 @@ class Julius_Recognition():
         try:
             proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                     encoding='utf-8', text=True, cwd="dictation-kit-4.5") #cwdは合っても無くても
+            print("[INFO] Julius process started.")
             stdout, stderr = proc.communicate(input=self.input_file + "\n")
-            #print(stdout)
+            print(stdout)
             results = []
             for line in stdout.splitlines():
                 match = re.search(r"sentence1:\s*(.+)", line)
@@ -36,6 +37,6 @@ class Julius_Recognition():
         except Exception as e:
             print(f"[ERROR] {e}")
         
-        finally:
-            proc.terminate()
-            print("[INFO] Julius process terminated.")
+        #finally:
+        #    proc.terminate()
+        #    print("[INFO] Julius process terminated.")

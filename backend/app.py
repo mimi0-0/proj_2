@@ -1,14 +1,9 @@
-from flask import Flask, render_template
-
+from flask import Flask
 app = Flask(__name__)
 
 @app.route('/')
-def flask_app():
-    return 'おめでとう成功だ!!!'
-def hello():
-    name = "who"
-    #return name
-    return render_template('hello.html', title='hello2', name=name)
+def hello_world():
+    return 'Hello, World!'
 
-if __name__ == "__main__":
-    app.run(debug=True, port=5001, threaded=True)  
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', debug=True, port=5000, threaded=True)
