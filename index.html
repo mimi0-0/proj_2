@@ -4,111 +4,169 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ドローン操作アプリ</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="main.css">
+    <style>
+        /* レイアウトとデザインのスタイル */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            flex: 3;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .chat-sidebar {
+            flex: 1;
+            background-color: #f4f4f4;
+            border-left: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .chat-header {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-bubble {
+            max-width: 60%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 15px;
+            position: relative;
+        }
+        .user-bubble {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            border-top-right-radius: 0;
+        }
+        .drone-bubble {
+            background-color: #e9ecef;
+            color: #333;
+            align-self: flex-start;
+            border-top-left-radius: 0;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .chat-input button {
+            margin-left: 10px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
+    <!-- 左側: ドローン操作 -->
     <div class="container">
-        <h1>ドローン操作アプリ</h1>
-
-        <!-- モード選択 -->
+        <h1>tello</h1>
         <div class="mode-selector">
             <label>
-                <input type="radio" name="mode" value="manual" checked onclick="changeMode('manual')"> 手動操作
+                <input type="radio" name="mode" value="manual" checked onclick="changeMode()"> 手動操作
             </label>
             <label>
-                <input type="radio" name="mode" value="voice" onclick="changeMode('voice')"> 音声操作
+                <input type="radio" name="mode" value="voice" onclick="changeMode()"> 音声操作
             </label>
             <label>
-                <input type="radio" name="mode" value="text" onclick="changeMode('text')"> テキスト操作
+                <input type="radio" name="mode" value="text" onclick="changeMode()"> テキスト操作
             </label>
         </div>
-
-        <!-- 手動操作パネル -->
+        
+        <!-- 操作パネル -->
         <div class="control-panel" id="manualControls">
             <div class="directional-controls">
-                <button onclick="sendCommand('up')" class="control-button">↑ Up</button>
-                <div class="horizontal-controls">
-                    <button onclick="sendCommand('left')" class="control-button">← Left</button>
-                    <button onclick="sendCommand('right')" class="control-button">Right →</button>
+                <button onclick="sendCommand('up')">↑Up</button>
+                <div>
+                    <button onclick="sendCommand('left')">← Left</button>
+                    <button onclick="sendCommand('right')">Right →</button>
                 </div>
-                <button onclick="sendCommand('down')" class="control-button">↓ Down</button>
+                <button onclick="sendCommand('down')">↓Down</button>
             </div>
             <div class="action-controls">
-                <button onclick="sendCommand('Command')" class="control-button">接続</button>
-                <button onclick="sendCommand('takeoff')" class="control-button">離陸</button>
-                <button onclick="sendCommand('land')" class="control-button">着陸</button>
-                <button onclick="sendCommand('flip')" class="control-button">フリップ</button>
+                <button onclick="sendCommand('Command')">接続</button>
+                <button onclick="sendCommand('takeoff')">離陸</button>
+                <button onclick="sendCommand('land')">着陸</button>
+                <button onclick="sendCommand('flip')">フリップ</button>
             </div>
         </div>
+    </div>
 
-        <!-- 音声操作パネル -->
-        <div class="control-panel" id="voiceControls" style="display: none;">
-            <button class="mic-button" id="micButton">🎤 音声を録音する</button>
-            <p>マイクを押して録音を開始してください。</p>
+    <!-- 右側: チャット履歴 -->
+    <div class="chat-sidebar">
+        <div class="chat-header">チャット履歴</div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- 吹き出し形式のメッセージを表示 -->
         </div>
-
-        <!-- テキスト操作パネル -->
-        <div class="control-panel" id="textControls" style="display: none;">
-            <input type="text" id="textCommand" placeholder="テキストでコマンドを入力">
-            <button class="control-button" id="sendTextButton" onclick="sendTextCommand()">送信</button>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="メッセージを入力...">
+            <button onclick="sendMessage()">送信</button>
         </div>
     </div>
 
     <script>
-        // モード切替
-        function changeMode(mode) {
-            document.getElementById('manualControls').style.display = mode === 'manual' ? 'block' : 'none';
-            document.getElementById('voiceControls').style.display = mode === 'voice' ? 'block' : 'none';
-            document.getElementById('textControls').style.display = mode === 'text' ? 'block' : 'none';
+        const chatMessages = document.getElementById("chatMessages");
+        const chatInput = document.getElementById("chatInput");
+
+        // ユーザーがメッセージを送信
+        function sendMessage() {
+            const message = chatInput.value;
+            if (message.trim()) {
+                addChatBubble(message, "user");
+                chatInput.value = ""; // 入力欄をクリア
+                chatMessages.scrollTop = chatMessages.scrollHeight; // スクロールを一番下に
+                
+                // ドローンのレスポンスをシミュレート
+                setTimeout(() => {
+                    const response = getDroneResponse(message);
+                    addChatBubble(response, "drone");
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000); // レスポンスは1秒後に返す
+            }
         }
 
-        // 手動操作コマンド送信
-        function sendCommand(command) {
-            fetch('/command', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command: command })
-            }).then(response => response.json())
-              .then(data => console.log(data));
+        // 吹き出しを追加
+        function addChatBubble(message, sender) {
+            const bubble = document.createElement("div");
+            bubble.classList.add("chat-bubble", sender === "user" ? "user-bubble" : "drone-bubble");
+            bubble.textContent = message;
+            chatMessages.appendChild(bubble);
         }
 
-        // 音声録音
-        const micButton = document.getElementById('micButton');
-        micButton?.addEventListener('click', async () => {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const mediaRecorder = new MediaRecorder(stream);
-            const audioChunks = [];
-
-            mediaRecorder.addEventListener('dataavailable', event => {
-                audioChunks.push(event.data);
-            });
-
-            mediaRecorder.addEventListener('stop', async () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                const formData = new FormData();
-                formData.append('audio', audioBlob);
-
-                const response = await fetch('/transcribe', {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                const data = await response.json();
-                alert(`文字起こし結果: ${data.transcription}`);
-                sendCommand(data.transcription); // 文字起こし結果を送信
-            });
-
-            mediaRecorder.start();
-            setTimeout(() => {
-                mediaRecorder.stop();
-                stream.getTracks().forEach(track => track.stop());
-            }, 5000); // 5秒間録音
-        });
-
-        // テキストコマンド送信
-        function sendTextCommand() {
-            const textCommand = document.getElementById('textCommand').value;
-            sendCommand(textCommand);
+        // ドローンからの簡単なレスポンスを返す（シミュレート）
+        function getDroneResponse(userMessage) {
+            if (userMessage.toLowerCase().includes("離陸")) {
+                return "ドローンが離陸しました！";
+            } else if (userMessage.toLowerCase().includes("着陸")) {
+                return "ドローンが着陸しました。";
+            } else if (userMessage.toLowerCase().includes("接続")) {
+                return "ドローンと接続しました。";
+            } else {
+                return "コマンドを実行しました。";
+            }
         }
     </script>
 </body>
