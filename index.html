@@ -59,25 +59,6 @@
             align-self: flex-start;
             border-top-left-radius: 0;
         }
-        .chat-input {
-            display: flex;
-            padding: 10px;
-            border-top: 1px solid #ccc;
-        }
-        .chat-input input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .chat-input button {
-            margin-left: 10px;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
     </style>
 </head>
 <body>
@@ -121,31 +102,22 @@
         <div class="chat-messages" id="chatMessages">
             <!-- 吹き出し形式のメッセージを表示 -->
         </div>
-        <div class="chat-input">
-            <input type="text" id="chatInput" placeholder="メッセージを入力...">
-            <button onclick="sendMessage()">送信</button>
-        </div>
     </div>
 
     <script>
         const chatMessages = document.getElementById("chatMessages");
-        const chatInput = document.getElementById("chatInput");
 
-        // ユーザーがメッセージを送信
-        function sendMessage() {
-            const message = chatInput.value;
-            if (message.trim()) {
-                addChatBubble(message, "user");
-                chatInput.value = ""; // 入力欄をクリア
-                chatMessages.scrollTop = chatMessages.scrollHeight; // スクロールを一番下に
-                
-                // ドローンのレスポンスをシミュレート
-                setTimeout(() => {
-                    const response = getDroneResponse(message);
-                    addChatBubble(response, "drone");
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }, 1000); // レスポンスは1秒後に返す
-            }
+        // コマンド送信時にチャット履歴に追加し、ドローンからのレスポンスを表示
+        function sendCommand(command) {
+            addChatBubble(`コマンド: ${command}`, "user");
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // ドローンのレスポンスをシミュレート
+            setTimeout(() => {
+                const response = getDroneResponse(command);
+                addChatBubble(response, "drone");
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 1000); // レスポンスは1秒後に返す
         }
 
         // 吹き出しを追加
@@ -157,15 +129,26 @@
         }
 
         // ドローンからの簡単なレスポンスを返す（シミュレート）
-        function getDroneResponse(userMessage) {
-            if (userMessage.toLowerCase().includes("離陸")) {
-                return "ドローンが離陸しました！";
-            } else if (userMessage.toLowerCase().includes("着陸")) {
-                return "ドローンが着陸しました。";
-            } else if (userMessage.toLowerCase().includes("接続")) {
-                return "ドローンと接続しました。";
-            } else {
-                return "コマンドを実行しました。";
+        function getDroneResponse(command) {
+            switch (command) {
+                case "takeoff":
+                    return "ドローンが離陸しました！";
+                case "land":
+                    return "ドローンが着陸しました。";
+                case "Command":
+                    return "ドローンと接続しました。";
+                case "flip":
+                    return "ドローンがフリップしました！";
+                case "up":
+                    return "ドローンが上昇しました。";
+                case "down":
+                    return "ドローンが下降しました。";
+                case "left":
+                    return "ドローンが左に移動しました。";
+                case "right":
+                    return "ドローンが右に移動しました。";
+                default:
+                    return "コマンドを実行しました。";
             }
         }
     </script>
