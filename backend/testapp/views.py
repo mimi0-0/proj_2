@@ -11,4 +11,9 @@ def index():
     return render_template("index.html")
 @app.route('/test')
 def other1():
-    return "テストページです！"
+    return "テストページです！!!!gghjk"
+@app.route('/sampleform-post', methods=['POST'])
+def sample_form_temp():
+    print('POSTデータ受け取ったので処理します')
+    return 'POST受け取ったよ'
+
