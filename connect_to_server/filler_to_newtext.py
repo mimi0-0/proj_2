@@ -150,7 +150,7 @@ def combine_words(check_text, check_pos):
 # 名詞 + 「する」+ 「前に」の組み合わせを結合する処理を強化
 def combine_noun_and_suru(result):
     combined_result = []
-    skip_next = False
+    skip_next = 0
 
     # 'する'の変化形をリスト化
     suru_forms = {
@@ -161,8 +161,8 @@ def combine_noun_and_suru(result):
     te_forms = {"て", "で"}  # 助詞「て」「で」の形
 
     for i, (word, pos, read) in enumerate(result):
-        if skip_next:
-            skip_next = False
+        if skip_next > 0:
+            skip_next -= 1
             continue
            
         if pos == "名詞" and i + 1 < len(result):
@@ -178,7 +178,7 @@ def combine_noun_and_suru(result):
                             combined_result.append(
                                 (word + next_word + next_next_word + next_next_next_word, "動詞", read + next_read + next_next_read + next_next_next_read)
                             )
-                            skip_next = True  # 3つスキップ
+                            skip_next = 3 # 3つスキップ
                             continue
                 combined_result.append((word + next_word, "動詞", read + next_read))
                 skip_next = True
@@ -190,14 +190,14 @@ def combine_noun_and_suru(result):
                         combined_result.append(
                             (word + next_word + next_next_word, "動詞", read + next_read + next_next_read)
                         )
-                        skip_next = True  # 2つスキップ
+                        skip_next = 2 # 2つスキップ
                         continue
             # 上げて/下げて + を動詞
             elif (word == "上げ" or word == "あげ" or word == "下げ" or word == "さげ") and i + 1 < len(result):
                 next_word, next_pos, next_read = result[i + 1]
                 if next_word == "て":
                     combined_result.append((word + next_word, "動詞", read + next_read))
-                    skip_next = True  # 次の名詞をスキップ
+                    skip_next = 1  # 次の名詞をスキップ
                     continue
             else:
                 combined_result.append((word, pos, read))
@@ -218,7 +218,7 @@ def combine_noun_and_suru(result):
                         combined_result.append(
                             (word + next_word + next_next_word, "動詞", read + next_read + next_next_read)
                         )
-                        skip_next = True  # 2つスキップ
+                        skip_next = 2  # 2つスキップ
                         continue
             else:
                 combined_result.append((word, pos, read))
@@ -227,7 +227,7 @@ def combine_noun_and_suru(result):
             next_word, next_pos, next_read = result[i + 1]
             if next_pos == "名詞":
                 combined_result.append((word + next_word, "名詞", read + next_read))
-                skip_next = True  # 次の名詞をスキップ
+                skip_next = 1  # 次の名詞をスキップ
             
             else:
                 combined_result.append((word, pos, read))
@@ -344,21 +344,22 @@ def morphological_analysis(text, dictionary):
 
     return final_results
 
-"""
+
 if __name__ == "__main__":
     ipadic_dir_path = "/home/rf22127/mecab/mecab-ipadic-2.7.0-20070801/"
 
     # IPAdic辞書をロード
     dictionary = load_ipadic_dict(ipadic_dir_path)
 
-    text = "右に曲がる前に後ろに100cm進む"
+    text = "右に回転する前に後ろに100cm進んで"
 
     # 形態素解析を実行
     final_results = morphological_analysis(text, dictionary)
+
 
     # 結果を表示
     for result in final_results:
         print("Morphological analysis result:")
         for word, pos, read in result:
             print(f"{word} ({pos}) [{read}]")
-"""
+
