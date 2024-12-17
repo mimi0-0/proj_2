@@ -91,7 +91,7 @@ def dijkstra_lattice(lattice, text_len):
         for node in lattice[current_position]:
             next_position = current_position + len(node.word)
             cost = distances[current_position] + node.cost
-            print(f"Considering node: {node.word}, cost: {node.cost}, position: {current_position}")
+            #print(f"Considering node: {node.word}, cost: {node.cost}, position: {current_position}")
             if next_position not in distances or cost < distances[next_position]:
                 distances[next_position] = cost
                 previous_nodes[next_position] = node
@@ -344,7 +344,7 @@ def morphological_analysis(text, dictionary):
 
     return final_results
 
-
+"""
 if __name__ == "__main__":
     ipadic_dir_path = "/home/rf22127/mecab/mecab-ipadic-2.7.0-20070801/"
 
@@ -361,3 +361,4 @@ if __name__ == "__main__":
         print("Morphological analysis result:")
         for word, pos, read in result:
             print(f"{word} ({pos}) [{read}]")
+"""
