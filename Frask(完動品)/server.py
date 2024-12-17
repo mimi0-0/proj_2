@@ -122,13 +122,13 @@ def handle_upload1():
         # Telloにコマンドを送信(40をくっつける)
         send_to_tello(f"{command_from_audio} 40")
 
-        return jsonify({"status": "success"})
+        return jsonify({ "status": "success","sentcommand": command_from_audio}) 
     except Exception as e:
         print(f"Error in handle_upload: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
 
-@app.route('/upload2', methods=['POST'])#2_hmmモデルの実装
+@app.route('/upload2', methods=['POST'])#2_hmmモデルの実装（まだ1のコピーです）
 def handle_upload2():
     try:
         # 'audio'フィールドのファイルを取得
@@ -142,7 +142,7 @@ def handle_upload2():
 
         # データセットのロード
         dataset_dir = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/'
-        waveforms, labels = load_dataset(dataset_dir)  # load_datasetが2つの値を返すことを仮定
+        waveforms, labels = load_dataset(dataset_dir)  
 
         # 音声ファイルを使ってコマンドを予測
         #command_from_audio = DP_ans("received_audio.wav",waveforms, labels)
@@ -157,7 +157,7 @@ def handle_upload2():
         return jsonify({"status": "error", "message": str(e)}), 400
 
 
-@app.route('/upload3', methods=['POST'])#3_E2Eモデルの実装
+@app.route('/upload3', methods=['POST'])#3_E2Eモデルの実装（まだ1のコピーです）
 def handle_upload3():
     try:
         # 'audio'フィールドのファイルを取得
@@ -171,8 +171,7 @@ def handle_upload3():
 
         # データセットのロード
         dataset_dir = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/'
-        waveforms, labels = load_dataset(dataset_dir)  # load_datasetが2つの値を返すことを仮定
-
+        waveforms, labels = load_dataset(dataset_dir)  
         # 音声ファイルを使ってコマンドを予測
         #command_from_audio = DP_ans("received_audio.wav",waveforms, labels)
         
@@ -204,3 +203,4 @@ def index():
 # サーバーの開始
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)
+
