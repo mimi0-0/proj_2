@@ -186,7 +186,7 @@ def change_to_command(verb_list, dependents_list):
         elif any("はやく" in dep[0] for dep in dependents_list[i]) or any("早" in dep[0] for dep in dependents_list[i]):
             plus_com = f"speed {speed_num + 20} /"
 
-        if any("進" in word for word in verb[0].split()):
+        if any("進" in word for word in verb[0].split()) or any("退" in word for word in verb[0].split()):
             if any("前" in word for word in verb[0].split()):
                 exec_com = 'forward'
             elif any("後" in word for word in verb[0].split()):
@@ -268,7 +268,7 @@ def change_to_command(verb_list, dependents_list):
 
         elif any("離陸" in word for word in verb[0].split()):
             exec_com = 'takeoff'
-
+        
         com += plus_com + exec_com + " /"
 
     return com
@@ -294,14 +294,14 @@ def process_text(text, dictionary):
     return command, processor.verbs, processor.verb_dependents
 
 
-
+"""
 if __name__ == "__main__":
     ipadic_dir_path = "/home/rf22127/mecab/mecab-ipadic-2.7.0-20070801/"
 
     # load_ipadic_dict：辞書を読み込む
     dictionary = load_ipadic_dict(ipadic_dir_path)
 
-    text = "離陸して進んで"
+    text = "高度を上げた後に後退して"
     root = dependency_analysis_with_syntax_tree(text, dictionary)
     
     # 構文木の出力
@@ -327,4 +327,4 @@ if __name__ == "__main__":
     print("\nパブリック変数としての動詞と依存語のリスト:")
     print("Verbs:", processor.verbs)
     print("Verb Dependents:", processor.verb_dependents)
-
+"""
