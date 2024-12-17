@@ -16,7 +16,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 @app.route('/')
 def index():
-    return render_template('/index2.html')
+    return render_template('/index3.html')
 
 @app.route('/command', methods=['POST', 'OPTIONS'])
 def handle_command():

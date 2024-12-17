@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ドローン操作アプリ</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     
+
 </head>
 <body>
+    <!-- 左側: ドローン操作 -->
     <div class="container">
         <h1>tello</h1>
-        <!-- モード選択 -->
         <div class="mode-selector">
             <label>
                 <input type="radio" name="mode" value="manual" checked onclick="changeMode()"> 手動操作
@@ -23,24 +24,23 @@
             </label>
         </div>
         
-        <!-- 手動操作パネル -->
+        <!-- 操作パネル -->
         <div class="control-panel" id="manualControls">
             <div class="directional-controls">
-                <button onclick="sendCommand('up')" class="control-button" id="upButton">↑Up</button>
-                <div class="horizontal-controls">
-                    <button onclick="sendCommand('left')" class="control-button" id="leftButton">← Left</button>
-                    <button onclick="sendCommand('right')" class="control-button" id="rightButton">Right →</button>
+                <button onclick="sendCommand('up')">↑Up</button>
+                <div>
+                    <button onclick="sendCommand('left')">← Left</button>
+                    <button onclick="sendCommand('right')">Right →</button>
                 </div>
-                <button onclick="sendCommand('down')" class="control-button" id="downButton">↓Down</button>
+                <button onclick="sendCommand('down')">↓Down</button>
             </div>
             <div class="action-controls">
-                <button onclick="sendCommand('Command')" class="control-button" id="takeoffButton">接続</button>
-                <button onclick="sendCommand('takeoff')" class="control-button" id="takeoffButton">離陸</button>
-                <button onclick="sendCommand('land')" class="control-button" id="landButton">着陸</button>
-                <button onclick="sendCommand('flip')" class="control-button" id="flipButton">フリップ</button>
+                <button onclick="sendCommand('Command')">接続</button>
+                <button onclick="sendCommand('takeoff')">離陸</button>
+                <button onclick="sendCommand('land')">着陸</button>
+                <button onclick="sendCommand('flip')">フリップ</button>
             </div>
         </div>
-        
         <!-- 音声操作パネル -->
         <div class="control-panel" id="voiceControls" style="display: none;">
             <button class="mic-button" id="micButton">🎤</button>
@@ -53,14 +53,14 @@
             <input type="text" id="textCommand" placeholder="テキストでコマンドを入力">
             <button class="control-button" id="sendTextButton" onclick="sendTextCommand()">送信</button>
         </div> 
+    </div>
+
     <!-- 右側: チャット履歴 -->
     <div class="chat-sidebar">
         <div class="chat-header">チャット履歴</div>
         <div class="chat-messages" id="chatMessages">
             <!-- 吹き出し形式のメッセージを表示 -->
         </div>
-    </div>
-
     </div>
     <script src="{{ url_for('static', filename='javascript/script.js') }}"></script>
 </body>

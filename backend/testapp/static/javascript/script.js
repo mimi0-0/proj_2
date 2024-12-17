@@ -1,6 +1,53 @@
 let mediaRecorder;
 let audioChunks = [];
 
+const chatMessages = document.getElementById("chatMessages");
+
+// コマンド送信時にチャット履歴に追加し、ドローンからのレスポンスを表示
+function sendCommand(command) {
+    addChatBubble(`コマンド: ${command}`, "user");
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // ドローンのレスポンスをシミュレート
+    setTimeout(() => {
+        const response = getDroneResponse(command);
+        addChatBubble(response, "drone");
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 1000); // レスポンスは1秒後に返す
+}
+
+// 吹き出しを追加
+function addChatBubble(message, sender) {
+    const bubble = document.createElement("div");
+    bubble.classList.add("chat-bubble", sender === "user" ? "user-bubble" : "drone-bubble");
+    bubble.textContent = message;
+    chatMessages.appendChild(bubble);
+}
+
+// ドローンからの簡単なレスポンスを返す（シミュレート）
+function getDroneResponse(command) {
+    switch (command) {
+        case "takeoff":
+            return "ドローンが離陸しました！";
+        case "land":
+            return "ドローンが着陸しました。";
+        case "Command":
+            return "ドローンと接続しました。";
+        case "flip":
+            return "ドローンがフリップしました！";
+        case "up":
+            return "ドローンが上昇しました。";
+        case "down":
+            return "ドローンが下降しました。";
+        case "left":
+            return "ドローンが左に移動しました。";
+        case "right":
+            return "ドローンが右に移動しました。";
+        default:
+            return "コマンドを実行しました。";
+    }
+}
+
 // モード切り替え処理
 function changeMode() {
     const mode = document.querySelector('input[name="mode"]:checked').value;
@@ -24,7 +71,7 @@ function changeMode() {
     }
 }
 
-
+/*
 // 音声コマンド処理
 document.getElementById("micButton").onclick = async () => {
     try {
@@ -97,3 +144,5 @@ function sendCommand(command) {
     .then(data => console.log(data))
     .catch(error => console.error('Error:', error));
 }
+
+*/
