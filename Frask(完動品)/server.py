@@ -43,7 +43,7 @@ def send_to_tello(command):
 send_to_tello('command')
 send_to_tello('streamon')
 
-"""
+
 # キャプチャオブジェクトの初期化
 cap = cv2.VideoCapture(f'udp://@{TELLO_CAMERA_ADDRESS[0]}:{TELLO_CAMERA_ADDRESS[1]}')
 
@@ -51,7 +51,7 @@ if not cap.isOpened():
     cap.open(f'udp://@{TELLO_CAMERA_ADDRESS[0]}:{TELLO_CAMERA_ADDRESS[1]}')
 
 time.sleep(1)
-"""
+
 
 def get_battery():
     return send_to_tello("battery?")
