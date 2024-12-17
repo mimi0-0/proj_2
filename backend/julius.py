@@ -2,6 +2,7 @@ import subprocess
 import re
 import sys
 import os
+import sound
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
 
 #julius = "C:/.../dictation-kit-4.5/bin/windows/julius.exe"
@@ -19,6 +20,14 @@ class Julius_Recognition():
         self.input_file = input_file
 
     def recognition(self):
+        Time = 5
+        sample_rate = 16000
+        frame_size = 1024
+        channels = 1
+        mic_channel = 0
+        r = sound.Record(Time, sample_rate, frame_size, channels, mic_channel, self.input_file)
+        r.record_and_save()
+        
         args = [self.julius, "-C", self.main, "-C", self.am_dnn, "-dnnconf", self.julius_dnn, "-input", "rawfile", "-charconv", "shift_jis", "sjis"]
         try:
             proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
