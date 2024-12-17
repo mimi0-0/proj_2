@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ドローン操作アプリ</title>
+    <!-- CSSファイルのパスを修正 -->
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+
+</head>
+<body>
+    <div class="container">
+        <h1>tello</h1>
+        <!-- モード選択 -->
+        <div class="mode-selector">
+            <label>
+                <input type="radio" name="mode" value="manual" checked onclick="changeMode()"> 手動操作
+            </label>
+            <label>
+                <input type="radio" name="mode" value="voice1" onclick="changeMode()"> 音声操作（DPmatching）
+            </label>
+            <label>
+                <input type="radio" name="mode" value="voice2" onclick="changeMode()"> 音声操作（HMM）
+            </label>
+            <label>
+                <input type="radio" name="mode" value="voice3" onclick="changeMode()"> 音声操作（E2E）
+            </label>
+            <label>
+                <input type="radio" name="mode" value="text" onclick="changeMode()"> テキスト操作
+            </label>
+        </div>
+        
+        <!-- 手動操作パネル -->
+        <div class="control-panel" id="manualControls">
+            <div class="directional-controls">
+                <button onclick="sendCommand('up 20')" class="control-button" id="upButton">↑Up</button>
+                <div class="horizontal-controls">
+                    <div class="direction up" onclick="sendCommand('forward 20')">前</div>
+                    <div class="direction down" onclick="sendCommand('back 20')">後ろ</div>
+                    <div class="direction left" onclick="sendCommand('left 20')">左</div>
+                    <div class="direction right" onclick="sendCommand('right 20')">右</div>
+                </div>
+                <button onclick="sendCommand('down 20')" class="control-button" id="downButton">↓Down</button>
+            </div>
+            <div class="action-controls">
+                <button onclick="sendCommand('Command')" class="control-button" id="takeoffButton">接続</button>
+                <button onclick="sendCommand('takeoff')" class="control-button" id="takeoffButton">離陸</button>
+                <button onclick="sendCommand('land')" class="control-button" id="landButton">着陸</button>
+                <button onclick="sendCommand('flip f')" class="control-button" id="flipButton">フリップ</button>
+            </div>
+        </div>
+        
+        <!-- 音声操作パネル -->
+        <div class="control-panel1" id="voice1Controls" style="display: none;">
+            <p>DPマッチングにより音声からコマンドを生成します 入力音声がdown,up,right,left,forwad,backwardのうちどれかを判定します</p>
+            <button class="mic-button" id="micButton1">🎤</button>
+            <p>マイクを押して音声コマンドを録音してください。</p>
+        </div>
+
+        <div class="control-panel2" id="voice2Controls" style="display: none;">
+            <p>2</p>
+            <button class="mic-button" id="micButton2">🎤</button>
+            <p>マイクを押して音声コマンドを録音してください。</p>
+        </div>
+
+        <div class="control-panel3" id="voice3Controls" style="display: none;">
+            <p>DPmatching</p><!-- 説明　-->
+            <button class="mic-button" id="micButton3">🎤</button>
+            <p>マイクを押して音声コマンドを録音してください。</p>
+        </div>
+
+        <!-- テキスト操作パネル -->
+        <div class="control-panel" id="textControls" style="display: none;">
+            <div class="chat-container" id="chatContainer"></div>
+            <input type="text" id="textCommand" placeholder="テキストでコマンドを入力">
+            <button class="control-button" id="sendTextButton" onclick="sendTextCommand()">送信</button>
+        </div>
+
+        <div class="container">
+            <h1>Telloのステータス</h1>
+            <div class="status-container">
+                <div class="status-item">
+                    <p id="battery">バッテリー: {{battery}}</p>
+                </div>
+                <div class="status-item">
+                    <p id="time">時刻: {{time}}</p>
+                </div>
+            </div>
+            
+
+            <div class="video-container">
+                <h2>動画ストリーム</h2>
+                <img src="/video_feed" width="640" height="480"/>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
