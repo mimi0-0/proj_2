@@ -158,7 +158,7 @@ def combine_noun_and_suru(result):
         "させて", "させられる", "していた", "しても", "してくれ", "してみる",
     }
     
-    te_forms = {"て", "で"}  # 助詞「て」「で」の形
+    te_forms = {"て", "で", "た"}  # 助詞「て」「で」の形
 
     for i, (word, pos, read) in enumerate(result):
         if skip_next:
@@ -192,6 +192,12 @@ def combine_noun_and_suru(result):
                         )
                         skip_next = True  # 2つスキップ
                         continue
+            elif next_word in te_forms and (next_pos == "助詞" or next_pos == "助動詞"):
+                combined_result.append(
+                            (word + next_word, "動詞", read + next_read)
+                )
+                skip_next = True  # 2つスキップ
+                continue
             
             else:
                 combined_result.append((word, pos, read))
@@ -345,7 +351,7 @@ if __name__ == "__main__":
     # IPAdic辞書をロード
     dictionary = load_ipadic_dict(ipadic_dir_path)
 
-    text = "離陸して進んで"
+    text = "上げて上げた"
 
     # 形態素解析を実行
     final_results = morphological_analysis(text, dictionary)
