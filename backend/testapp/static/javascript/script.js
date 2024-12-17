@@ -75,26 +75,41 @@ document.getElementById("micButton").onclick = async () => {
 };
 
 // テキスト送信処理
-
-function sendTextCommand() {
+async function sendTextCommand() {
     const textCommand = document.getElementById("textCommand").value;
 
     if (textCommand) {
-        // 送信されたコマンドをログに追加
-        const chatContainer = document.getElementById("chatContainer");
-        const newMessage = document.createElement("div");
-        newMessage.classList.add("chat-message");
-        newMessage.textContent =  {textCommand};
-        chatContainer.appendChild(newMessage);
+        try {
+            const response = await fetch('/upload_keitaiso', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ textCommand: textCommand })
+            });
 
-        // 送信後にテキストボックスを空にする
-        document.getElementById("textCommand").value = "";
-        chatContainer.scrollTop = chatContainer.scrollHeight; // チャットをスクロールして最新メッセージを表示
+            if (response.ok) {
+                const result = await response.json();
+                const chatContainer = document.getElementById("chatContainer");
+                const newMessage = document.createElement("div");
+                newMessage.classList.add("chat-message");
+                newMessage.textContent = result.response; // 繰り返された値を表示
+                chatContainer.appendChild(newMessage);
+
+                // テキストボックスを空にする
+                document.getElementById("textCommand").value = "";
+                chatContainer.scrollTop = chatContainer.scrollHeight; // チャットをスクロールして最新メッセージを表示
+            } else {
+                alert('Error processing command.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to send command.');
+        }
     } else {
         alert("コマンドを入力してください。");
     }
 }
-
 
 function sendCommand(command) {
     fetch('http://localhost:5001/command', {

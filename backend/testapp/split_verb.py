@@ -8,6 +8,24 @@ class CommandProcessor:
         self.verbs = []  # 動詞のみを格納するリスト
         self.verb_dependents = []  # 動詞に対応する依存語とその品詞を格納するリスト
         
+    def process_text(self, text, dictionary):
+        # CommandProcessor インスタンスの生成
+        processor = CommandProcessor()
+
+        # 構文解析
+        root = dependency_analysis_with_syntax_tree(text, dictionary)
+
+        # 構文木の処理
+        process_root_and_generate_commands(root, processor)
+
+        # 動詞順序の再整理
+        processor.verbs, processor.verb_dependents = reorder_verbs(processor.verbs, processor.verb_dependents)
+
+        # コマンド作成
+        command = change_to_command(processor.verbs, processor.verb_dependents)
+
+        return command, processor.verbs, processor.verb_dependents
+
 
 # 「前に」を含む動詞を検出し、その動詞以前の要素を最後に移動
 def reorder_verbs(verbs, verb_dependents):
@@ -274,24 +292,6 @@ def change_to_command(verb_list, dependents_list):
     return com
 
 
-
-def process_text(text, dictionary):
-    # CommandProcessor インスタンスの生成
-    processor = CommandProcessor()
-
-    # 構文解析
-    root = dependency_analysis_with_syntax_tree(text, dictionary)
-
-    # 構文木の処理
-    process_root_and_generate_commands(root, processor)
-
-    # 動詞順序の再整理
-    processor.verbs, processor.verb_dependents = reorder_verbs(processor.verbs, processor.verb_dependents)
-
-    # コマンド作成
-    command = change_to_command(processor.verbs, processor.verb_dependents)
-
-    return command, processor.verbs, processor.verb_dependents
 
 
 """

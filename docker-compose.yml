@@ -1,14 +1,7 @@
 services:
   backend:
-    environment:
-      - PULSE_SERVER=/mnt/wslg/PulseServer
-      - DISPLAY=$DISPLAY
-      - WAYLAND_DISPLAY=$WAYLAND_DISPLAY
-      - XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR
     volumes:
       - ./backend:/app
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      - /mnt/wslg:/mnt/wslg
     tty: true
     build:
       context: .

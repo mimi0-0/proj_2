@@ -53,13 +53,7 @@
             <input type="text" id="textCommand" placeholder="テキストでコマンドを入力">
             <button class="control-button" id="sendTextButton" onclick="sendTextCommand()">送信</button>
         </div> 
-    <!-- 右側: チャット履歴 -->
-    <div class="chat-sidebar">
-        <div class="chat-header">チャット履歴</div>
-        <div class="chat-messages" id="chatMessages">
-            <!-- 吹き出し形式のメッセージを表示 -->
-        </div>
-    </div>
+
 
     </div>
     <script src="{{ url_for('static', filename='javascript/script.js') }}"></script>

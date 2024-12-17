@@ -6,7 +6,10 @@ import numpy as np
 from flask import Flask, Response, request, jsonify, render_template
 from flask_cors import CORS
 from filler_to_newtext import load_ipadic_dict
-from split_verb import process_text
+from split_verb import CommandProcessor
+
+
+import julius
 
 app = Flask(__name__)
 CORS(app)  # CORSの設定（異なるドメインからのアクセスを許可）
@@ -102,44 +105,56 @@ def handle_command():
 @app.route('/upload', methods=['POST'])
 def handle_upload():
     try:
-        # リクエストにJSONが含まれている場合はテキストとして処理
-        if request.json:
-            text = request.json.get('sent_to_client', '')
-            if text:
-                print(f"Received text input: {text}")
-                
-                # テキストからコマンドを生成
-                ipadic_dir_path = "/home/rf22127/mecab/mecab-ipadic-2.7.0-20070801/"
-                dictionary = load_ipadic_dict(ipadic_dir_path)
-                command, verbs, verb_dependents = process_text(text, dictionary)
-                
-                # デバッグ用出力
-                print(f"Generated command: {command}")
-                print(f"Verbs: {verbs}")
-                print(f"Verb dependents: {verb_dependents}")
-                
-                # ドローンへ送信
-                response = send_to_tello(command)
-                return jsonify({"status": "success", "command": command, "response": response})
-            return jsonify({"status": "error", "message": "No text provided"}), 400
-        
-        # 音声ファイルを処理
+        # 'audio'フィールドのファイルを取得
         audio_file = request.files['audio']
-        save_path = '/path/to/save/received_audio.wav'
+        
+        # 音声ファイルを指定のパスに保存
+        save_path = './output.wav'
         audio_file.save(save_path)
+        
         print(f"Saved audio file to: {save_path}")
 
-        # 音声データからコマンドを予測（仮想関数）
-        dataset_dir = '/path/to/dataset/'
-        waveforms, labels = load_dataset(dataset_dir)
-        command_from_audio = DP_ans("received_audio.wav", waveforms, labels)
-        print(f"Generated command from audio: {command_from_audio}")
-        response = send_to_tello(command_from_audio)
-        return jsonify({"status": "success", "command": command_from_audio, "response": response})
+        # データセットのロード
+        #dataset_dir = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/'
+        #waveforms, labels = load_dataset(dataset_dir)  # load_datasetが2つの値を返すことを仮定
+
+        # 音声ファイルを使ってコマンドを予測
+        main = "./dictation-kit-4.5/main.jconf"
+        am_dnn = "./dictation-kit-4.5/am-dnn.jconf"
+        julius_dnn = "./dictation-kit-4.5/julius.dnnconf"
+        input_file = "./output.wav"
+        julius_path = "./dictation-kit-4.5/bin/windows/julius.exe"
+        reco = julius.Julius_Recognition(julius_path, main, am_dnn, julius_dnn, input_file)
+        command_from_audio = reco.recognition()
+        #DP_ans("received_audio.wav",waveforms, labels)
+        
+        #形態素解析
+        dictionary = load_ipadic_dict("./mecab-ipadic-2.7.0-20070801/")
+        sr = CommandProcessor()
+        command, verbs, verb_dependence = sr.process_text(command_from_audio, dictionary)
+        
+        print(f"Received command from audio: {command}")
+        # Telloにコマンドを送信
+        send_to_tello(command)
+
+        return jsonify({"status": "success"})
     except Exception as e:
         print(f"Error in handle_upload: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({"status": "error", "message": str(e)}), 400
+@app.route('/upload_keitaiso', methods=['POST'])
+#形態素解析
+def text_reco():
+    data = request.json
+    text_command = data.get('textCommand')
+    if text_command:
+        dictionary = load_ipadic_dict("./mecab-ipadic-2.7.0-20070801/")
+        sr = CommandProcessor()
+        command, verbs, verb_dependence = sr.process_text(text_command, dictionary)
+        
+        send_to_tello(command)
 
+        return jsonify({'response': command})
+    return jsonify({'response': 'Invalid input'}), 400
 
 @app.route('/update_data')
 def update_data():

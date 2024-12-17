@@ -2,6 +2,7 @@ import subprocess
 import re
 import sys
 import os
+import sound
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
 
 #julius = "C:/.../dictation-kit-4.5/bin/windows/julius.exe"
@@ -9,7 +10,7 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
 #am_dnn = "C:/.../dictation-kit-4.5/am-dnn.jconf"
 #julius_dnn = "C:/.../dictation-kit-4.5/julius.dnnconf"
 #input_file = "C:/.../BASIC5000_0001.wav"
-#command = cd dictation-kit-4.5 && ./bin/linux/julius -C main.jconf -C am-gmm.jconf -demo -charconv utf-8 sjis
+
 class Julius_Recognition():
     def __init__(self, julius, main, am_dnn, julius_dnn, input_file):
         self.julius = julius
@@ -19,24 +20,31 @@ class Julius_Recognition():
         self.input_file = input_file
 
     def recognition(self):
-        args = [self.julius, "-C", self.main, "-C", self.am_dnn, "-dnnconf", self.julius_dnn, "-input", "rawfile", "-charconv", "shift_jis", "sjis"]
+        Time = 5
+        sample_rate = 16000
+        frame_size = 1024
+        channels = 1
+        mic_channel = 0
+        r = sound.Record(Time, sample_rate, frame_size, channels, mic_channel, self.input_file)
+        r.record_and_save()
+        
+        args = [self.julius, "-nostrip", "-C", self.main, "-C", self.am_dnn, "-dnnconf", self.julius_dnn, "-input", "rawfile", "-charconv", "utf-8", "sjis", "-cutsilence"]
         try:
             proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                     encoding='utf-8', text=True, cwd="dictation-kit-4.5") #cwdは合っても無くても
-            print("[INFO] Julius process started.")
             stdout, stderr = proc.communicate(input=self.input_file + "\n")
-            print(stdout)
+            #print(stdout)
             results = []
             for line in stdout.splitlines():
                 match = re.search(r"sentence1:\s*(.+)", line)
                 if match:
                     result = match.group(1).strip()
                     results.append(result)
-            return result
+            return result.replace(' ', '')
         
         except Exception as e:
             print(f"[ERROR] {e}")
         
-        #finally:
-        #    proc.terminate()
-        #    print("[INFO] Julius process terminated.")
+        finally:
+            proc.terminate()
+            print("[INFO] Julius process terminated.")

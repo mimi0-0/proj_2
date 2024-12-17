@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音声認識</title>
+</head>
+<body>
+    <button id="startBtn">録音開始</button>
+    <p id="result"></p>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/recorderjs/0.1.0/recorder.js"></script>
+
+    <script>
+        document.getElementById("micButton").addEventListener("click", function() {
+            // 録音の秒数を指定
+            const duration = 5;  // 5秒間の録音
+    
+            // 音声録音のリクエストを送信
+            fetch('/record_audio', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ duration: duration }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                console.log('録音されたファイル:', data.filename);
+                console.log('認識されたテキスト:', data.recognized_text);
+            })
+            .catch(error => {
+                console.error('音声録音に失敗しました:', error);
+            });
+        });
+    </script>
+    
+</body>
+</html>
