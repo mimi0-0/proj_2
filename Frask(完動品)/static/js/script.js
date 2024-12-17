@@ -47,7 +47,7 @@ document.getElementById("micButton1").onclick = async () => {
                     body: formData,
                 });
                 const result = await response.json();
-                alert(`音声データ送信結果: ${result.status}`);
+                alert(`音声データ送信結果: ${result.status},送信されたコマンド: ${result.sentcommand}`);
                 console.log("サーバー応答:", result);
             } catch (error) {
                 console.error("送信エラー:", error);
@@ -97,7 +97,7 @@ document.getElementById("micButton2").onclick = async () => {
                     body: formData,
                 });
                 const result = await response.json();
-                alert(`音声データ送信結果: ${result.status}`);
+                alert(`音声データ送信結果: ${result.status},送信されたコマンド: ${result.sentcommand}`);
                 console.log("サーバー応答:", result);
             } catch (error) {
                 console.error("送信エラー:", error);
@@ -148,7 +148,7 @@ document.getElementById("micButton3").onclick = async () => {
                     body: formData,
                 });
                 const result = await response.json();
-                alert(`音声データ送信結果: ${result.status}`);
+                alert(`音声データ送信結果: ${result.status},送信されたコマンド: ${result.sentcommand}`);
                 console.log("サーバー応答:", result);
             } catch (error) {
                 console.error("送信エラー:", error);
@@ -184,7 +184,7 @@ function sendTextCommand() {
 
         // 送信後にテキストボックスを空にする
         document.getElementById("textCommand").value = "";
-        chatContainer.scrollTop = chatContainer.scrollHeight; // チャットをスクロールして最新メッセージを表示
+        chatContainer.scrollTop = chatContainer.scrollHeight; 
     } else {
         alert("コマンドを入力してください。");
     }
