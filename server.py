@@ -4,7 +4,7 @@ import socket  # Telloに送るためにsocketを使用
 #from dpmatch01 import DP_ans, load_dataset 
 import os
 import julius
-import split_verb
+from split_verb import process_text
 
 app = Flask(__name__)
 CORS(app)
@@ -109,8 +109,7 @@ def handle_upload():
         
         #形態素解析
         dictionary = "./mecab-ipadic-2.7.0-20070801/"
-        sp = split_verb.CommandProcessor()
-        command, verbs, verb_dependence = sp.process_text(command_from_audio, dictionary)
+        command, verbs, verb_dependence = process_text(command_from_audio, dictionary)
 
         print(f"Received command from audio: {command}")
         # Telloにコマンドを送信
