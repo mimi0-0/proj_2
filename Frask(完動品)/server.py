@@ -43,7 +43,7 @@ def send_to_tello(command):
 send_to_tello('command')
 send_to_tello('streamon')
 
-
+"""
 # キャプチャオブジェクトの初期化
 cap = cv2.VideoCapture(f'udp://@{TELLO_CAMERA_ADDRESS[0]}:{TELLO_CAMERA_ADDRESS[1]}')
 
@@ -51,7 +51,7 @@ if not cap.isOpened():
     cap.open(f'udp://@{TELLO_CAMERA_ADDRESS[0]}:{TELLO_CAMERA_ADDRESS[1]}')
 
 time.sleep(1)
-
+"""
 
 def get_battery():
     return send_to_tello("battery?")
@@ -106,17 +106,17 @@ def handle_upload1():
         audio_file = request.files['audio']
         
         # 音声ファイルを指定のパスに保存
-        save_path = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/received_audio.wav'
+        save_path = '/Users/abechika/utm_shere/project/Frask(完動品)/dataset/received_audio.wav'
         audio_file.save(save_path)
         
         print(f"Saved audio file to: {save_path}")
 
         # データセットのロード
-        dataset_dir = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/'
+        dataset_dir = '/Users/abechika/utm_shere/project/Frask(完動品)/dataset/'
         waveforms, labels = load_dataset(dataset_dir)  
 
         # 音声ファイルを使ってコマンドを予測
-        command_from_audio = DP_ans("received_audio.wav",waveforms, labels)
+        command_from_audio = DP_ans("received_audio.wav",waveforms, labels ,dataset_dir)
         
         print(f"Received command from audio: {command_from_audio} 40 ")
         # Telloにコマンドを送信(40をくっつける)
@@ -128,7 +128,8 @@ def handle_upload1():
         return jsonify({"status": "error", "message": str(e)}), 400
 
 
-@app.route('/upload2', methods=['POST'])#2_hmmモデルの実装（まだ1のコピーです）
+@app.route('/upload2', methods=['POST'])#2_hmmモデルの実装(まだ1のコピペです)
+
 def handle_upload2():
     try:
         # 'audio'フィールドのファイルを取得
@@ -142,7 +143,7 @@ def handle_upload2():
 
         # データセットのロード
         dataset_dir = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/'
-        waveforms, labels = load_dataset(dataset_dir)  
+        waveforms, labels = load_dataset(dataset_dir)  # load_datasetが2つの値を返すことを仮定
 
         # 音声ファイルを使ってコマンドを予測
         #command_from_audio = DP_ans("received_audio.wav",waveforms, labels)
@@ -157,7 +158,7 @@ def handle_upload2():
         return jsonify({"status": "error", "message": str(e)}), 400
 
 
-@app.route('/upload3', methods=['POST'])#3_E2Eモデルの実装（まだ1のコピーです）
+@app.route('/upload3', methods=['POST'])#3_E2Eモデルの実装（まだ1のこぴぺ）
 def handle_upload3():
     try:
         # 'audio'フィールドのファイルを取得
@@ -171,7 +172,8 @@ def handle_upload3():
 
         # データセットのロード
         dataset_dir = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/'
-        waveforms, labels = load_dataset(dataset_dir)  
+        waveforms, labels = load_dataset(dataset_dir)  # load_datasetが2つの値を返すことを仮定
+
         # 音声ファイルを使ってコマンドを予測
         #command_from_audio = DP_ans("received_audio.wav",waveforms, labels)
         
@@ -203,4 +205,3 @@ def index():
 # サーバーの開始
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)
-
