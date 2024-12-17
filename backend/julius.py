@@ -9,7 +9,7 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
 #am_dnn = "C:/.../dictation-kit-4.5/am-dnn.jconf"
 #julius_dnn = "C:/.../dictation-kit-4.5/julius.dnnconf"
 #input_file = "C:/.../BASIC5000_0001.wav"
-#command = ./bin/linux/julius -C main.jconf -C am-gmm.jconf -demo -charconv utf-8 sjis
+#command = cd dictation-kit-4.5 && ./bin/linux/julius -C main.jconf -C am-gmm.jconf -demo -charconv utf-8 sjis
 class Julius_Recognition():
     def __init__(self, julius, main, am_dnn, julius_dnn, input_file):
         self.julius = julius
