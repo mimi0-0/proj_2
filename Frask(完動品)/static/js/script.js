@@ -173,7 +173,21 @@ document.getElementById("micButton3").onclick = async () => {
 
 function sendTextCommand() {
     const textCommand = document.getElementById("textCommand").value;
-    alert(`テキスト送信: ${textCommand}`);
+    
+    if (textCommand) {
+        // 送信されたコマンドをログに追加
+        const chatContainer = document.getElementById("chatContainer");
+        const newMessage = document.createElement("div");
+        newMessage.classList.add("chat-message");
+        newMessage.textContent = ` ${textCommand}`;
+        chatContainer.appendChild(newMessage);
+
+        // 送信後にテキストボックスを空にする
+        document.getElementById("textCommand").value = "";
+        chatContainer.scrollTop = chatContainer.scrollHeight; // チャットをスクロールして最新メッセージを表示
+    } else {
+        alert("コマンドを入力してください。");
+    }
 }
 
 function sendCommand(command) {
