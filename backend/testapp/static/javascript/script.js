@@ -1,53 +1,6 @@
 let mediaRecorder;
 let audioChunks = [];
 
-const chatMessages = document.getElementById("chatMessages");
-
-// コマンド送信時にチャット履歴に追加し、ドローンからのレスポンスを表示
-function sendCommand(command) {
-    addChatBubble(`コマンド: ${command}`, "user");
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-
-    // ドローンのレスポンスをシミュレート
-    setTimeout(() => {
-        const response = getDroneResponse(command);
-        addChatBubble(response, "drone");
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }, 1000); // レスポンスは1秒後に返す
-}
-
-// 吹き出しを追加
-function addChatBubble(message, sender) {
-    const bubble = document.createElement("div");
-    bubble.classList.add("chat-bubble", sender === "user" ? "user-bubble" : "drone-bubble");
-    bubble.textContent = message;
-    chatMessages.appendChild(bubble);
-}
-
-// ドローンからの簡単なレスポンスを返す（シミュレート）
-function getDroneResponse(command) {
-    switch (command) {
-        case "takeoff":
-            return "ドローンが離陸しました！";
-        case "land":
-            return "ドローンが着陸しました。";
-        case "Command":
-            return "ドローンと接続しました。";
-        case "flip":
-            return "ドローンがフリップしました！";
-        case "up":
-            return "ドローンが上昇しました。";
-        case "down":
-            return "ドローンが下降しました。";
-        case "left":
-            return "ドローンが左に移動しました。";
-        case "right":
-            return "ドローンが右に移動しました。";
-        default:
-            return "コマンドを実行しました。";
-    }
-}
-
 // モード切り替え処理
 function changeMode() {
     const mode = document.querySelector('input[name="mode"]:checked').value;
@@ -71,7 +24,7 @@ function changeMode() {
     }
 }
 
-/*
+
 // 音声コマンド処理
 document.getElementById("micButton").onclick = async () => {
     try {
@@ -123,13 +76,24 @@ document.getElementById("micButton").onclick = async () => {
 
 // テキスト送信処理
 
-
-// テキスト送信処理
 function sendTextCommand() {
     const textCommand = document.getElementById("textCommand").value;
-    alert(`テキスト送信: ${textCommand}`);
-}
 
+    if (textCommand) {
+        // 送信されたコマンドをログに追加
+        const chatContainer = document.getElementById("chatContainer");
+        const newMessage = document.createElement("div");
+        newMessage.classList.add("chat-message");
+        newMessage.textContent =  {textCommand};
+        chatContainer.appendChild(newMessage);
+
+        // 送信後にテキストボックスを空にする
+        document.getElementById("textCommand").value = "";
+        chatContainer.scrollTop = chatContainer.scrollHeight; // チャットをスクロールして最新メッセージを表示
+    } else {
+        alert("コマンドを入力してください。");
+    }
+}
 
 
 function sendCommand(command) {
@@ -145,4 +109,20 @@ function sendCommand(command) {
     .catch(error => console.error('Error:', error));
 }
 
-*/
+function updateData() {
+    fetch('/update_data')  // URLを指定
+    .then(response => response.json())  // JSONとしてレスポンスを解析
+    .then(data => {
+      // JSONデータから要素を取り出して変数に代入
+      const time = data.time;    
+      const battery = data.battery;   
+      console.log(time, battery);  // 変数を確認するためにログを表示
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);  // エラーハンドリング
+    });
+  
+}
+
+// 1秒ごとにupdateDataを呼び出す
+setInterval(updateData, 1000);
