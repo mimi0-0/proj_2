@@ -2,6 +2,7 @@ services:
   backend:
     volumes:
       - ./backend:/app
+      
     build:
       context: .
       dockerfile: docker/python/Dockerfile
