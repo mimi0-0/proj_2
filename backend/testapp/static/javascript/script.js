@@ -1,27 +1,25 @@
 let mediaRecorder;
 let audioChunks = [];
+let currentMode = ""; // モードを保存
+
 
 // モード切り替え処理
 function changeMode() {
     const mode = document.querySelector('input[name="mode"]:checked').value;
-    
+    currentMode = mode; // モードを現在のモードに更新
+
     const manualPanel = document.getElementById("manualControls");
-    const voicePanel = document.getElementById("voiceControls");
+    const voice1Panel = document.getElementById("voice1Controls");
+    const voice2Panel = document.getElementById("voice2Controls");
+    const voice3Panel = document.getElementById("voice3Controls");
     const textPanel = document.getElementById("textControls");
 
-    if (mode === 'manual') {
-        manualPanel.style.display = 'block';
-        voicePanel.style.display = 'none';
-        textPanel.style.display = 'none';
-    } else if (mode === 'voice') {
-        manualPanel.style.display = 'none';
-        voicePanel.style.display = 'block';
-        textPanel.style.display = 'none';
-    } else if (mode === 'text') {
-        manualPanel.style.display = 'none';
-        voicePanel.style.display = 'none';
-        textPanel.style.display = 'block';
-    }
+    // 各パネルを切り替え
+    manualPanel.style.display = (mode === 'manual') ? 'block' : 'none';
+    voice1Panel.style.display = (mode === 'voice1') ? 'block' : 'none';
+    voice2Panel.style.display = (mode === 'voice2') ? 'block' : 'none';
+    voice3Panel.style.display = (mode === 'voice3') ? 'block' : 'none';
+    textPanel.style.display = (mode === 'text') ? 'block' : 'none';
 }
 
 

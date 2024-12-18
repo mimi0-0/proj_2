@@ -16,7 +16,13 @@
                 <input type="radio" name="mode" value="manual" checked onclick="changeMode()"> 手動操作
             </label>
             <label>
-                <input type="radio" name="mode" value="voice" onclick="changeMode()"> 音声操作
+                <input type="radio" name="mode" value="voice1" onclick="changeMode()"> 音声操作（DPmatching）
+            </label>
+            <label>
+                <input type="radio" name="mode" value="voice2" onclick="changeMode()"> 音声操作（HMM）
+            </label>
+            <label>
+                <input type="radio" name="mode" value="voice3" onclick="changeMode()"> 音声操作（E2E）
             </label>
             <label>
                 <input type="radio" name="mode" value="text" onclick="changeMode()"> テキスト操作
@@ -46,15 +52,48 @@
             <button class="mic-button" id="micButton">🎤</button>
             <p>マイクを押して音声コマンドを録音してください。</p>
         </div>
+        
+        <!-- 音声操作パネル -->
+        <div class="control-panel1" id="voice1Controls" style="display: none;">
+            <p>DPマッチングにより音声からコマンドを生成します 入力音声がdown,up,right,left,forwad,backwardのうちどれかを判定します</p>
+            <button class="mic-button" id="micButton1">🎤</button>
+            <p>マイクを押して音声コマンドを録音してください。</p>
+        </div>
 
+        <div class="control-panel2" id="voice2Controls" style="display: none;">
+            <p>2</p>
+            <button class="mic-button" id="micButton2">🎤</button>
+            <p>マイクを押して音声コマンドを録音してください。</p>
+        </div>
+
+        <div class="control-panel3" id="voice3Controls" style="display: none;">
+            <p>DPmatching</p><!-- 説明　-->
+            <button class="mic-button" id="micButton3">🎤</button>
+            <p>マイクを押して音声コマンドを録音してください。</p>
+        </div>
         <!-- テキスト操作パネル -->
         <div class="control-panel" id="textControls" style="display: none;">
             <div class="chat-container" id="chatContainer"></div>
             <input type="text" id="textCommand" placeholder="テキストでコマンドを入力">
             <button class="control-button" id="sendTextButton" onclick="sendTextCommand()">送信</button>
         </div> 
+        <div class="container">
+            <h1>Telloのステータス</h1>
+            <div class="status-container">
+                <div class="status-item">
+                    <p id="battery">バッテリー: {{battery}}</p>
+                </div>
+                <div class="status-item">
+                    <p id="time">時刻: {{time}}</p>
+                </div>
+            </div>
+            
 
-
+            <div class="video-container">
+                <h2>動画ストリーム</h2>
+                <img src="/video_feed" width="640" height="480"/>
+            </div>
+        </div>
     </div>
     <script src="{{ url_for('static', filename='javascript/script.js') }}"></script>
 </body>

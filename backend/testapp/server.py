@@ -107,13 +107,12 @@ def handle_upload1():
         audio_file = request.files['audio']
         
         # 音声ファイルを指定のパスに保存
-        save_path = '/Users/abechika/utm_shere/project/Frask(完動品)/dataset/received_audio.wav'
-        audio_file.save(save_path)
+        save_path = './output.wav'
         
         print(f"Saved audio file to: {save_path}")
 
         # データセットのロード
-        dataset_dir = '/Users/abechika/utm_shere/project/Frask(完動品)/dataset/'
+        dataset_dir = './dataset/'
         waveforms, labels = load_dataset(dataset_dir)  
 
         # 音声ファイルを使ってコマンドを予測
@@ -129,28 +128,39 @@ def handle_upload1():
         return jsonify({"status": "error", "message": str(e)}), 400
 
 @app.route('/upload2', methods=['POST'])#2_hmmモデルの実装(まだ1のコピペです)
-
-def handle_upload2():
+def handle_upload():
     try:
         # 'audio'フィールドのファイルを取得
         audio_file = request.files['audio']
         
         # 音声ファイルを指定のパスに保存
-        save_path = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/received_audio.wav'
+        save_path = './output.wav'
         audio_file.save(save_path)
         
         print(f"Saved audio file to: {save_path}")
 
         # データセットのロード
-        dataset_dir = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/'
-        waveforms, labels = load_dataset(dataset_dir)  # load_datasetが2つの値を返すことを仮定
+        #dataset_dir = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/'
+        #waveforms, labels = load_dataset(dataset_dir)  # load_datasetが2つの値を返すことを仮定
 
         # 音声ファイルを使ってコマンドを予測
-        #command_from_audio = DP_ans("received_audio.wav",waveforms, labels)
+        main = "./dictation-kit-4.5/main.jconf"
+        am_dnn = "./dictation-kit-4.5/am-dnn.jconf"
+        julius_dnn = "./dictation-kit-4.5/julius.dnnconf"
+        input_file = "./output.wav"
+        julius_path = "./dictation-kit-4.5/bin/windows/julius.exe"
+        reco = julius.Julius_Recognition(julius_path, main, am_dnn, julius_dnn, input_file)
+        command_from_audio = reco.recognition()
+        #DP_ans("received_audio.wav",waveforms, labels)
         
-        print(f"Received command from audio: [2]")
+        #形態素解析
+        dictionary = load_ipadic_dict("./mecab-ipadic-2.7.0-20070801/")
+        sr = CommandProcessor()
+        command, verbs, verb_dependence = sr.process_text(command_from_audio, dictionary)
+        
+        print(f"Received command from audio: {command}")
         # Telloにコマンドを送信
-        #send_to_tello(command_from_audio)
+        send_to_tello(command)
 
         return jsonify({"status": "success"})
     except Exception as e:
@@ -165,17 +175,15 @@ def handle_upload3():
         audio_file = request.files['audio']
         
         # 音声ファイルを指定のパスに保存
-        save_path = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/received_audio.wav'
-        audio_file.save(save_path)
-        
+        save_path = './output.wav'
         print(f"Saved audio file to: {save_path}")
 
         # データセットのロード
-        dataset_dir = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/'
+        dataset_dir = './dataset/'
         waveforms, labels = load_dataset(dataset_dir)  # load_datasetが2つの値を返すことを仮定
 
         # 音声ファイルを使ってコマンドを予測
-        #command_from_audio = DP_ans("received_audio.wav",waveforms, labels)
+        command_from_audio = DP_ans("received_audio.wav",waveforms, labels)
         
         print(f"Received command from audio: [3]")
         # Telloにコマンドを送信
