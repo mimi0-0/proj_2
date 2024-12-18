@@ -1,19 +1,28 @@
-from flask import Flask, request, jsonify
+import socket
+import threading
+import cv2
+import time
+import numpy as np
+from flask import Flask, Response, request, jsonify, render_template
 from flask_cors import CORS
-import socket  # Telloに送るためにsocketを使用
-from dpmatch01 import DP_ans, load_dataset 
-import os
+from filler_to_newtext import load_ipadic_dict
+from split_verb import CommandProcessor
+from dpmatch01 import load_dataset , DP_ans
+
+import julius
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # CORSの設定（異なるドメインからのアクセスを許可）
 
-# TelloのIPとポート設定
-TELLO_IP = "192.168.10.1"  # TelloのIPアドレス
-TELLO_PORT = 8889  # Telloが受信するポート番号
+# TelloのIPアドレスとポート設定
+TELLO_IP = '192.168.10.1'
+TELLO_PORT = 8889
+TELLO_ADDRESS = (TELLO_IP, TELLO_PORT)
+TELLO_CAMERA_ADDRESS = ('0.0.0.0', 11111)
 
-# UDPソケットのセットアップ
+# UDPソケット作成
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#sock.bind(("",5555)) 
+sock.bind(('', TELLO_PORT))
 
 def send_to_tello(command):
     """
@@ -22,18 +31,99 @@ def send_to_tello(command):
     try:
         print(f"Sending command to Tello: {command}")
         sock.sendto(command.encode('utf-8'), (TELLO_IP, TELLO_PORT))
+        # 応答を受信（タイムアウトを設定可能）
+        sock.settimeout(5.0)  # 5秒でタイムアウト
+        response, _ = sock.recvfrom(1024)  # 最大1024バイト受信
+        print(f"Response from Tello: {response.decode('utf-8')}")
+        return response.decode('utf-8')
+    except socket.timeout:
+        print("No response from Tello (timeout)")
+        return "No response (timeout)"
     except Exception as e:
         print(f"Error sending command to Tello: {e}")
+        return f"Error: {str(e)}"
+
+def send_to_tello_0(command):
+    """
+    ドローンTelloにコマンドを送る関数
+    """
+    try:
+        #print(f"Sending command to Tello: {command}")
+        sock.sendto(command.encode('utf-8'), (TELLO_IP, TELLO_PORT))
+        # 応答を受信（タイムアウトを設定可能）
+        sock.settimeout(5.0)  # 5秒でタイムアウト
+        response, _ = sock.recvfrom(1024)  # 最大1024バイト受信
+        #print(f"Response from Tello: {response.decode('utf-8')}")
+        return response.decode('utf-8')
+    except socket.timeout:
+        #print("No response from Tello (timeout)")
+        return "No response (timeout)"
+    except Exception as e:
+        #print(f"Error sending command to Tello: {e}")
+        return f"Error: {str(e)}"
 
 
-@app.route('/command', methods=['POST', 'OPTIONS'])
+# Telloのコマンドを送信
+send_to_tello('command')
+send_to_tello('streamon')
+'''
+# キャプチャオブジェクトの初期化
+cap = cv2.VideoCapture(f'udp://@{TELLO_CAMERA_ADDRESS[0]}:{TELLO_CAMERA_ADDRESS[1]}')
+
+if not cap.isOpened():
+    cap.open(f'udp://@{TELLO_CAMERA_ADDRESS[0]}:{TELLO_CAMERA_ADDRESS[1]}')
+'''
+time.sleep(1)
+
+def get_battery():
+    return send_to_tello_0("battery?")
+
+# 時間情報取得
+def get_time():
+    return send_to_tello_0("time?")
+
+def get_speed():
+    return send_to_tello_0("speed?")    
+
+def get_commandmode():
+    return send_to_tello_0("command")    
+
+def get_stream():
+    return send_to_tello_0("streamon")
+
+
+
+# ビデオ受信とストリーミングを行う関数
+def generate_frames():
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            continue
+        
+        # フレームが空でないことを確認
+        if frame is None or frame.size == 0:
+            continue
+        
+        # フレームのリサイズ（任意）
+        frame_height, frame_width = frame.shape[:2]
+        frame = cv2.resize(frame, (int(frame_width / 2), int(frame_height / 2)))
+
+        # JPEGにエンコード
+        _, buffer = cv2.imencode('.jpg', frame)
+        frame_bytes = buffer.tobytes()
+        
+        # HTTPレスポンスとして動画を送信
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+# Webページに動画をストリーミングするためのエンドポイント
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# コマンドをTelloに送信するエンドポイント
+@app.route('/command', methods=['POST'])
 def handle_command():
-    if request.method == 'OPTIONS':  # OPTIONSリクエストへの対応
-        response = jsonify({})
-        response.status_code = 200
-        return response
-
-    # 通常のPOST処理
     command = request.json.get('command')
     if command:
         print(f"Received command: {command}")
@@ -43,28 +133,68 @@ def handle_command():
         return jsonify({"status": "No command received"}), 400
 
 
-@app.route('/upload', methods=['POST'])
-def handle_upload():
+
+@app.route('/upload1', methods=['POST'])#1_DPmachingの実装
+def handle_upload1():
     try:
         # 'audio'フィールドのファイルを取得
         audio_file = request.files['audio']
         
         # 音声ファイルを指定のパスに保存
-        save_path = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/received_audio.wav'
+        save_path = './output.wav'
+        
+        print(f"Saved audio file to: {save_path}")
+
+        # データセットのロード
+        dataset_dir = './dataset/'
+        waveforms, labels = load_dataset(dataset_dir)  
+
+        # 音声ファイルを使ってコマンドを予測
+        command_from_audio = DP_ans("received_audio.wav",waveforms, labels ,dataset_dir)
+        
+        print(f"Received command from audio: {command_from_audio} 40 ")
+        # Telloにコマンドを送信(40をくっつける)
+        send_to_tello(f"{command_from_audio} 40")
+
+        return jsonify({ "status": "success","sentcommand": command_from_audio}) 
+    except Exception as e:
+        print(f"Error in handle_upload: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 400
+
+@app.route('/upload2', methods=['POST'])#2_hmmモデルの実装(まだ1のコピペです)
+def handle_upload2():
+    try:
+        # 'audio'フィールドのファイルを取得
+        audio_file = request.files['audio']
+        
+        # 音声ファイルを指定のパスに保存
+        save_path = './output.wav'
         audio_file.save(save_path)
         
         print(f"Saved audio file to: {save_path}")
 
         # データセットのロード
-        dataset_dir = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/'
-        waveforms, labels = load_dataset(dataset_dir)  # load_datasetが2つの値を返すことを仮定
+        #dataset_dir = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/'
+        #waveforms, labels = load_dataset(dataset_dir)  # load_datasetが2つの値を返すことを仮定
 
         # 音声ファイルを使ってコマンドを予測
-        command_from_audio = DP_ans("received_audio.wav",waveforms, labels)
+        main = "./dictation-kit-4.5/main.jconf"
+        am_dnn = "./dictation-kit-4.5/am-dnn.jconf"
+        julius_dnn = "./dictation-kit-4.5/julius.dnnconf"
+        input_file = "./output.wav"
+        julius_path = "./dictation-kit-4.5/bin/windows/julius.exe"
+        reco = julius.Julius_Recognition(julius_path, main, am_dnn, julius_dnn, input_file)
+        command_from_audio = reco.recognition()
+        #DP_ans("received_audio.wav",waveforms, labels)
         
-        print(f"Received command from audio: {command_from_audio}")
+        #形態素解析
+        dictionary = load_ipadic_dict("./mecab-ipadic-2.7.0-20070801/")
+        sr = CommandProcessor()
+        command, verbs, verb_dependence = sr.process_text(command_from_audio, dictionary)
+        
+        print(f"Received command from audio: {command}")
         # Telloにコマンドを送信
-        send_to_tello(command_from_audio)
+        send_to_tello(command)
 
         return jsonify({"status": "success"})
     except Exception as e:
@@ -72,5 +202,109 @@ def handle_upload():
         return jsonify({"status": "error", "message": str(e)}), 400
 
 
+@app.route('/upload3', methods=['POST'])#3_E2Eモデルの実装（まだ1のこぴぺ）
+def handle_upload3():
+    try:
+        # 'audio'フィールドのファイルを取得
+        audio_file = request.files['audio']
+        
+        # 音声ファイルを指定のパスに保存
+        save_path = './output.wav'
+        print(f"Saved audio file to: {save_path}")
+
+        # データセットのロード
+        dataset_dir = './dataset/'
+        waveforms, labels = load_dataset(dataset_dir)  # load_datasetが2つの値を返すことを仮定
+
+        # 音声ファイルを使ってコマンドを予測
+        command_from_audio = DP_ans("received_audio.wav",waveforms, labels)
+        
+        print(f"Received command from audio: [3]")
+        # Telloにコマンドを送信
+        #send_to_tello(command_from_audio)
+
+        return jsonify({"status": "success"})
+    except Exception as e:
+        print(f"Error in handle_upload: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 400
+
+
+# 音声ファイルをアップロードしてコマンドを予測するエンドポイント
+@app.route('/upload', methods=['POST'])
+def handle_upload():
+    try:
+        # 'audio'フィールドのファイルを取得
+        audio_file = request.files['audio']
+        
+        # 音声ファイルを指定のパスに保存
+        save_path = './output.wav'
+        audio_file.save(save_path)
+        
+        print(f"Saved audio file to: {save_path}")
+
+        # データセットのロード
+        #dataset_dir = '/Users/abechika/utm_shere/project/DroneAPP/backend/dataset/'
+        #waveforms, labels = load_dataset(dataset_dir)  # load_datasetが2つの値を返すことを仮定
+
+        # 音声ファイルを使ってコマンドを予測
+        main = "./dictation-kit-4.5/main.jconf"
+        am_dnn = "./dictation-kit-4.5/am-dnn.jconf"
+        julius_dnn = "./dictation-kit-4.5/julius.dnnconf"
+        input_file = "./output.wav"
+        julius_path = "./dictation-kit-4.5/bin/windows/julius.exe"
+        reco = julius.Julius_Recognition(julius_path, main, am_dnn, julius_dnn, input_file)
+        command_from_audio = reco.recognition()
+        #DP_ans("received_audio.wav",waveforms, labels)
+        
+        #形態素解析
+        dictionary = load_ipadic_dict("./mecab-ipadic-2.7.0-20070801/")
+        sr = CommandProcessor()
+        command, verbs, verb_dependence = sr.process_text(command_from_audio, dictionary)
+        
+        print(f"Received command from audio: {command}")
+        # Telloにコマンドを送信
+        send_to_tello(command)
+
+        return jsonify({"status": "success"})
+    except Exception as e:
+        print(f"Error in handle_upload: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 400
+@app.route('/upload_keitaiso', methods=['POST'])
+#形態素解析
+def text_reco():
+    data = request.json
+    text_command = data.get('textCommand')
+    if text_command:
+        dictionary = load_ipadic_dict("./mecab-ipadic-2.7.0-20070801/")
+        sr = CommandProcessor()
+        command, verbs, verb_dependence = sr.process_text(text_command, dictionary)
+        for com_split in command.split(' /'):
+            if com_split.strip():
+                send_to_tello(com_split)  # コマンドをTelloへ送信
+                print({"status": "Command sent", "command": com_split})
+                time.sleep(3)
+                return jsonify({"status": "Command sent", "command": com_split})
+            else:
+                return jsonify({"status": "Command sent", "command": command})
+    return jsonify({'response': 'Invalid input'}), 400
+
+@app.route('/update_data')
+def update_data():
+    battery = get_battery()
+    current_time = get_time()
+    speed  = get_speed()
+    return jsonify(battery=battery, time=current_time , speed=speed)
+
+# ホームページのルート
+@app.route('/')
+def index():
+    battery = get_battery()
+    current_time = get_time()
+    commandmode = get_commandmode()
+    stream = get_stream()
+    speed  = get_speed()
+    return render_template('index.html', battery=battery, time=current_time,commandmode = commandmode,stream=stream , speed = speed)
+
+# サーバーの開始
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)
