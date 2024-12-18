@@ -17,7 +17,7 @@ number_dit = {
 }
 
 # 例外的に動詞として扱う単語リスト
-EXCEPTION_VERBS = {"離陸", "着陸"}
+EXCEPTION_VERBS = {"離陸", "着陸", "離陸して", "着陸して", "離陸する", "着陸する"}
 
 # ノードのクラスを定義
 class Node:
@@ -220,6 +220,13 @@ def combine_noun_and_suru(result):
                 if i + 2 < len(result):
                     next_next_word, next_next_pos, next_next_read = result[i + 2]
                     if next_next_word == "に" and next_next_pos == "助詞":
+                        # 修正: 動詞が「～して」の場合は結合しない
+                        if word.endswith("て") or word.endswith("で"):
+                            combined_result.append((word, pos, read))  # そのまま動詞として追加
+                            combined_result.append((next_word, next_pos, next_read))  # 「前」として追加
+                            combined_result.append((next_next_word, next_next_pos, next_next_read))  # 「に」として追加
+                            skip_next = True  # 次の「前」と「に」をスキップ
+                            continue
                         # 「上昇する前に」を一つの動詞として結合
                         combined_result.append(
                             (word + next_word + next_next_word, "動詞", read + next_read + next_next_read)
@@ -234,7 +241,6 @@ def combine_noun_and_suru(result):
             if next_pos == "名詞":
                 combined_result.append((word + next_word, "名詞", read + next_read))
                 skip_next = True  # 次の名詞をスキップ
-            
             else:
                 combined_result.append((word, pos, read))
                 
