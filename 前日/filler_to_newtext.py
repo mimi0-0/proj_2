@@ -16,6 +16,8 @@ number_dit = {
     "9" : "９"
 }
 
+# 例外的に動詞として扱う単語リスト
+EXCEPTION_VERBS = {"離陸", "着陸"}
 
 # ノードのクラスを定義
 class Node:
@@ -67,6 +69,10 @@ def build_lattice(text, dictionary):
             elif all(33 <= ord(c) <= 47 or 58 <= ord(c) <= 64 or 91 <= ord(c) <= 96 or 123 <= ord(c) <= 126 for c in word):
                 full_width_word = ''.join(chr(ord(c) + 0xFEE0) for c in word)
                 node = Node(word, "記号", full_width_word, start, 1000)
+                lattice[start].append(node)
+            # 例外的な動詞として扱う単語
+            elif word in EXCEPTION_VERBS:
+                node = Node(word, "動詞", word, start, 500)  # 動詞として追加（低いコストを設定）
                 lattice[start].append(node)
             # 辞書に存在する場合
             elif word in dictionary:
@@ -351,7 +357,7 @@ if __name__ == "__main__":
     # IPAdic辞書をロード
     dictionary = load_ipadic_dict(ipadic_dir_path)
 
-    text = "上げて上げた"
+    text = "離陸"
 
     # 形態素解析を実行
     final_results = morphological_analysis(text, dictionary)
