@@ -182,9 +182,9 @@ def change_to_command(verb_list, dependents_list):
         # 以下のコードは以前のものと同様ですが、動詞ごとの出力が追加されています。
 
         if any("ゆっくり" in dep[0] for dep in dependents_list[i]) or any("遅" in dep[0] for dep in dependents_list[i]):
-            plus_com = f"speed {speed_num - 20} /"
+            plus_com = f"speed {speed_num - 40} /"
         elif any("はやく" in dep[0] for dep in dependents_list[i]) or any("早" in dep[0] for dep in dependents_list[i]):
-            plus_com = f"speed {speed_num + 20} /"
+            plus_com = f"speed {speed_num + 40} /"
 
         if any("進" in word for word in verb[0].split()) or any("退" in word for word in verb[0].split()):
             if any("前" in word for word in verb[0].split()):
