@@ -7,7 +7,7 @@ import pyaudio
 
 FORMAT        = pyaudio.paInt16
 TIME          = 4           # 録音時間[s]
-SAMPLE_RATE   = 16100        # サンプリングレート
+SAMPLE_RATE   = 16000        # サンプリングレート
 FRAME_SIZE    = 1024         # フレームサイズ
 CHANNELS      = 1            # モノラルかバイラルか
 INPUT_DEVICE_INDEX = 0       # マイクのチャンネル
@@ -15,7 +15,7 @@ NUM_OF_LOOP   = int(SAMPLE_RATE / FRAME_SIZE * TIME)
 
 
 
-WAV_FILE = "./output.wav"
+WAV_FILE = "/Users/owner/proj/decode/record/received_audio.wav"
 
 
 def look_for_audio_input():

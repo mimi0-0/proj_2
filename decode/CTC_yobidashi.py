@@ -153,8 +153,6 @@ def CTC(unit,wav_path,token_list,mean_std,model,config,recording_path):
     print("Done.")
     print("Recognizing...")
     #ここから認識
-
-
     # トークンリスト
     token_list_path = token_list
 
@@ -349,7 +347,7 @@ def CTC(unit,wav_path,token_list,mean_std,model,config,recording_path):
         #認識結果を出力
         print("Done.")
         print("---result--- ")
-        print(hypothesis)
+        #print(hypothesis)
 
         string_hypothesis = ""
         
@@ -357,9 +355,11 @@ def CTC(unit,wav_path,token_list,mean_std,model,config,recording_path):
             string_hypothesis = string_hypothesis + letter
 
         
-        dictionary = ["じょうしょう","かこう","まえ","うしろ","みぎ","ひだり","りりく","ちゃくりく","まがる","すすむ","ひゃくせんちめーとる"]
-        dictionary_phone = ["joushou","kakou","mae","usiro","migi","hidari","ririku","chakuriku","magaru","susumu","hyakusenchimeetoru"]
-        dictionary_char = ["上昇","下降","前","後ろ","右","左","離陸","着陸","曲がる","進む","100cm"]
+        print("音声認識結果:"+string_hypothesis)
+        
+        dictionary = ["じょーしょう","かこう","まえ","うしろ","みぎ","ひだり","りりく","ちゃくりく","すすむ","まがる","ひゃくせんちめーとる","にひゃくせんちめーとる","ゆっくり","はやく","ストリームオン","ストリームオフ","ちゅーがえり","に","して"]
+        dictionary_phone = ["joushou","kakou","mae","usiro","migi","hidari","ririku","chakuriku","susumu","magaru","hyakusenchimeetoru","nihyakusentimeetoru","yukkuri","hayaku","sutoriimuon","sutoriimuofu","chuugaeri","ni","site"]
+        dictionary_char = ["上昇","下降","前","後ろ","右","左","離陸","着陸","進む","曲がる","100cm","200cm","ゆっくり","早く","ストリームオン","ストリームオフ","宙返り","に","して"]
         dict = []
         distance_bet_wards = []
         time = []
@@ -386,43 +386,61 @@ def CTC(unit,wav_path,token_list,mean_std,model,config,recording_path):
                 distance_bet_wards = []
                 dict = []
 
+    print("レーベンシュタイン距離を測って得た文字列:")
     print(parts)
 
     command = ""
     distance = ""
     angle = ""
+    direction = ""
 
     for part in parts:
-        if(part=="じょうしょう"):
-            command = "up"
-        elif(part=="かこう"):
-            command = "down"
-        elif(part == "まえ"):
-            command = "forward"
-        elif(part=="うしろ"):
-            command = "back"
-        elif(part=="みぎ"):
-            command = "right"
-        elif(part=="ひだり"):
-            command = "left"
-        elif(part=="曲がる"):
-            command = "cw"
-        elif(part == "ひゃくせんちめーとる"):
-            distance = "100"
-        elif(part == "ちゃくりく"):
-            command = "land"
-        elif(part == "りりく"):
-            command = "takeoff" 
+        if(command != "up" or command !="down"or command !="cw" or command!="land" or command!="takeoff"):
+            if (direction == "f" or direction =="b"or direction =="l" or direction =="r"):
+                if part == "ちゅーがえり":
+                    command = "flip"
+        if not command:
+            if(part=="じょうしょう"):
+                command = "up"
+            elif(part=="かこう"):
+                command = "down"
+            elif(part == "まえ"):
+                command = "forward"
+                direction = "f"
+            elif(part=="うしろ"):
+                command = "back"
+                direction = "b"
+            elif(part=="みぎ"):
+                command = "right"
+                direction = "r"
+            elif(part=="ひだり"):
+                command = "left"
+                direction = "l"
+            elif(part=="曲がる"):
+                command = "cw"
+            elif(part =="ストリームオン"):
+                command ="streamon"
+            elif(part=="ストリームオフ"):
+                command = "streamoff"
+        if not distance:
+            if(part == "ひゃくせんちめーとる"):
+                distance = "100"
+            elif(part == "ちゃくりく"):
+                command = "land"
+            elif(part == "りりく"):
+                command = "takeoff" 
 
     if not command:
         sentence = "land"
+    elif(command == "flip"):
+        if not direction:
+            direction = "f"
+        sentence = command +" "+direction
     elif(command == "up" or command=="down"or command=="forward" or command== "back" or command=="right" or command == "left"):
         if not distance:
             distance = "100"
         sentence = command + " "+distance
     elif(command =="takeoff" or command == "land"):
         sentence = command
-
-
 
     return sentence
